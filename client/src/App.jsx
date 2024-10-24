@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
-import { LogIn } from './Pages/login'
 import { SignUp } from './Pages/signup'
 import { Home } from './Pages/home'
 import { TopNav } from './Components/TopNav'
+import { Dashboard } from './Pages/dashbaord'
 import { useEffect, useState } from 'react'
 
 import Button from 'react-bootstrap/Button'
@@ -28,8 +28,8 @@ function App() {
       <Router>
         <Routes>
           <Route index path='/' element={<Home/>}/>
-          <Route exact path='/login' element={<LogIn/>} />
           <Route exact path='/signup' element={<SignUp/>}/>
+          <Route exact path='/dashboard' element={<Dashboard/>} />
         </Routes>
       </Router>
       <Button onClick={df} className='position-absolute bottom-0 end-0'> {userTheme} </Button>
