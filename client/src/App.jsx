@@ -7,6 +7,7 @@ import { Dashboard } from './Pages/dashbaord'
 import { useEffect, useState } from 'react'
 
 import Button from 'react-bootstrap/Button'
+import { AllChat } from './Pages/allchat'
 
 function App() {
   const [userTheme, setUserTheme] = useState('light')
@@ -30,6 +31,7 @@ function App() {
           <Route index path='/' element={<Home/>}/>
           <Route exact path='/signup' element={<SignUp/>}/>
           <Route exact path='/dashboard' element={<Dashboard/>} />
+          <Route exact path='/allchat' element={<AllChat/>} />
         </Routes>
       </Router>
       <Button onClick={df} className='position-absolute bottom-0 end-0'> {userTheme} </Button>

@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {Form, Container, Button} from 'react-bootstrap'
 
 export function Home() {
+
+    useEffect( () => {
+
+    });
 
     const validateForm = () => {
 

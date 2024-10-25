@@ -11,21 +11,39 @@ const users = require("./routes/users");
 //
 const { Server } = require("socket.io");
 const { join } = require("node:path")
-const { createServer } = require("node:http");
+const http = require("http");
 //
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ['GET', 'POST'],
+        allowedHeaders: ["Access-Control-Allow-Origin"],
+        credentials: true,
+    },
+    allowEIO3: true,
+});
 const database = require("./database");
 const user_collection = database.collection("Users")
 //
-
+const session_options = session({
+    secret: "tacocat backwards",
+    resave: false,
+    saveUninitialized: false,
+})
 //
 app.use(express.static(join(__dirname, "../client/dist")));
 app.use(express.urlencoded({extended: true})); // sets up req.body for forms
 app.use(cors({
     origin: ["http://localhost:5173"],
+    allowedHeaders: ["Access-Control-Allow-Origin"],
+    credentials: true,
 })); // connect to react
+app.use(session_options);
+app.use(passport.authenticate('session'))
+io.engine.use(session_options)
+io.engine.use(passport.authenticate('session'))
 //
 passport.use(new Strategy(async function verify(username, password, cb) {
     const user_result = await user_collection.findOne( {username: username} )
@@ -50,12 +68,6 @@ passport.deserializeUser( (user, cb) => {
         cb(null, user);
     });
 })
-app.use(session({
-    secret: "tacocat backwards",
-    resave: false,
-    saveUninitialized: false,
-}));
-app.use(passport.authenticate('session'))
 //
 
 // routes **always go after app.use
@@ -75,12 +87,25 @@ app.get("/api/authenticate", (req, res, next) => {
     }
 })
 //
+io.engine.on("connection_error", (err) => {
+    console.log(err.message);
+    console.log(err.context);
+})
 io.on('connection', (socket) => {
-    socket.on('message', () => {
 
+    const req = socket.request
+
+    socket.on('message', (msg) => {
+        io.emit('message', {msg: msg, username: req.user.username} )
     })
+    
+    socket.on('disconnect', () => {
+        console.log("disconnected")
+    })
+
 });
 
-app.listen(8080, () => {
-    console.log("listening 8080");
+server.listen(8000, () => {
+    console.log("listening 8000");
 })
+

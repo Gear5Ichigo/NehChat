@@ -3,12 +3,17 @@ import { useEffect } from "react";
 export function Dashboard() {
 
     useEffect( () => {
-        fetch('/api/authenticate')
-        .then(res => res.json())
-        .then(data => {
-            if (!data.res) window.location.href = '/'
-        })
-    })
+        const authfetch = async () => {
+            await fetch('/api/authenticate')
+            .then(res => res.json() )
+            .then(
+                data => {
+                    if (!data.res) window.location.href = '/'
+                }
+            ) // on page load
+        }
+        authfetch().catch(err => console.log(err))
+    }, [])
 
     return (
         <>
