@@ -21,7 +21,7 @@ export function SignUp() {
                     <Button type='submit' className='my-3'> Create </Button>
                 </Form>
                 <hr></hr>
-                <a href='/login'> Log In </a>
+                <a href='/'> Log In </a>
             </Container>
         </>
     );

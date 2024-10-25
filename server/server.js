@@ -71,7 +71,7 @@ app.get("/api/authenticate", (req, res, next) => {
     if (req.isAuthenticated()) {
         res.send({res: true})
     } else {
-        res.send({res: false})
+        res.send({res:false})
     }
 })
 //

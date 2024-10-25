@@ -6,9 +6,7 @@ export function Dashboard() {
         fetch('/api/authenticate')
         .then(res => res.json())
         .then(data => {
-            if (!data.res) {
-                console.log(data.res)
-            }
+            if (!data.res) window.location.href = '/'
         })
     })
 
