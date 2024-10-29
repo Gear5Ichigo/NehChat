@@ -18,11 +18,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
-        methods: ['GET', 'POST'],
-        allowedHeaders: ["Access-Control-Allow-Origin"],
-        credentials: true,
     },
-    allowEIO3: true,
 });
 const database = require("./database");
 const user_collection = database.collection("Users")
@@ -37,8 +33,6 @@ app.use(express.static(join(__dirname, "../client/dist")));
 app.use(express.urlencoded({extended: true})); // sets up req.body for forms
 app.use(cors({
     origin: ["http://localhost:5173"],
-    allowedHeaders: ["Access-Control-Allow-Origin"],
-    credentials: true,
 })); // connect to react
 app.use(session_options);
 app.use(passport.authenticate('session'))
@@ -96,7 +90,7 @@ io.on('connection', (socket) => {
     const req = socket.request
 
     socket.on('message', (msg) => {
-        io.emit('message', {msg: msg, username: req.user.username} )
+        io.emit('message', {msg: msg} )
     })
     
     socket.on('disconnect', () => {
