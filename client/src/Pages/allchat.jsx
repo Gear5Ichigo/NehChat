@@ -3,9 +3,9 @@ import io from 'socket.io-client'
 
 import { Form, Button } from "react-bootstrap";
 
-const socket = io('http://10.40.0.251:8000', {
-    transports: ["websocket"],
-    autoConnect: false,
+const socket = io('http://10.40.0.25:8000', {
+    autoConnect: false, 
+    withCredentials: true, 
 })
 
 export function AllChat() {

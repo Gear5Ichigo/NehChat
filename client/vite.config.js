@@ -9,7 +9,14 @@ export default defineConfig({
       host: true,
     },
     proxy: {
-      "/api": "http://localhost:8000"
+      "/api": {
+        target: "http://localhost:8000",
+      },
+      "/socket.io": {
+        target: "http://localhost:8000",
+        ws:true,
+        changeOrigin: true
+      }
     },
   }
 })
