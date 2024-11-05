@@ -6,6 +6,7 @@ const session = require("express-session");
 const logger = require("morgan");
 const passport = require("passport");
 const crypto = require("crypto");
+const { Profanity, CensorType } = require("@2toad/profanity");
 //
 const users = require("./routes/users");
 //
@@ -24,22 +25,19 @@ const io = new Server(server, {
 });
 const database = require("./database");
 const user_collection = database.collection("Users")
+const profanity = new Profanity({
+    languages: ['en', 'fr', 'es', 'de'],
+    wholeWord: true,
+    grawlix: "[censored]"
+});
+profanity.addWords(["sigma", "skibidi", "ohio", "rizz", "goon"])
+profanity.removeWords(["balls"])
 //
 const session_options = session({
     secret: "tacocat backwards",
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
 })
-function onlyForHandshake(middleware) {
-    return (req, res, next) => {
-      const isHandshake = req._query.sid === undefined;
-      if (isHandshake) {
-        middleware(req, res, next);
-      } else {
-        next();
-      }
-    };
-  }
 //
 app
     .use(express.static(join(__dirname, "../client/dist")))
@@ -53,11 +51,9 @@ app
     .use(passport.session())
     .use(passport.authenticate('session'));
 //
-io.engine.use(onlyForHandshake(session_options));
-io.engine.use(onlyForHandshake(passport.session()));
+io.engine.use(session_options);
+io.engine.use(passport.session());
 io.engine.use(passport.authenticate('session'));
-
-
 //
 passport.use(new Strategy(async function verify(username, password, cb) {
     const user_result = await user_collection.findOne( {username: username} )
@@ -94,11 +90,11 @@ app.get("/api/theme", (req, res) => {
     res.send({theme: theme})
 })
 app.get("/api/authenticate", (req, res, next) => {
+    console.log(req.isAuthenticated())
     if (req.isAuthenticated()) {
-        console.log(req.user)
         res.send({res: true})
     } else {
-        res.send({res:false})
+        res.send({res: false})
     }
 })
 //
@@ -112,7 +108,7 @@ io.on('connection', (socket) => {
     console.log(req.session)
 
     socket.on('message', (msg) => {
-        io.emit('message', {msg: msg} )
+        io.emit('message', {user: req.user, msg: profanity.censor(msg)} )
     })
     
     socket.on('disconnect', () => {

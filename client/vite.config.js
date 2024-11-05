@@ -4,10 +4,13 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "xmlhttprequest-ssl": "./node_modules/engine.io-client/lib/xmlhttprequest.js"
+    }
+  },
   server: {
-    server: {
-      host: true,
-    },
+    host: true,
     proxy: {
       "/api": {
         target: "http://localhost:8000",

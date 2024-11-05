@@ -3,14 +3,16 @@ import io from 'socket.io-client'
 
 import { Form, Button } from "react-bootstrap";
 
-const socket = io('http://10.40.0.25:8000', {
+const socket = io('http://:8000', {
+    transports: ['websocket'],
     autoConnect: false, 
     withCredentials: true, 
 })
 
 export function AllChat() {
-    const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState([])
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [loggedIn, setLoggedIn] = useState(false);
 
     useEffect( () => {
 
@@ -32,11 +34,12 @@ export function AllChat() {
         socket.connect()
 
         socket.on('connect', () => {
-            console.log("joe joined")
+            
         })
         
         socket.on('message', (msg) => {
-            setMessages((messages)=>[...messages, msg])
+            setMessages((messages)=>[...messages, msg]);
+            window.scrollTo(0, document.body.scrollHeight);
         })
 
         return () => {
@@ -48,17 +51,29 @@ export function AllChat() {
 
     const messageSubmit = (event) => {
         event.preventDefault();
-        socket.emit('message', message)
-        setMessage('');
+        if (message.length>0) {
+            socket.emit('message', message);
+            setMessage('');
+        }
     }
     
     return (
         <>
             <ul style={ {listStyle: "none"} }>
-                {messages.map((message, index) => <li key={index}> {message.msg} </li>)}
+                {messages.map((message, index) =>
+                <li key={index} className="d-flex">
+                    <div> <img src="/basic.png" alt="profile_pic"/> </div>
+                    <div>
+                        <div> <b>{message.user.username}</b> <small> xx/xx/xxxx </small> </div>
+                        <div> {message.msg} </div>
+                        <div> <small> reactions here lol </small> </div>
+                    </div>
+                </li>)}
             </ul>
-            <Form onSubmit={messageSubmit}> 
+            <Form onSubmit={messageSubmit} style={ { bottom: 0, position: "fixed"} } className="d-flex">
+                <Form.Control type="file" />
                 <Form.Control type="text" maxLength={200} value={message} onChange={ event => setMessage(event.target.value) } />
+                <Form.Control type="submit" className="w-25" />
             </Form>
         </>
     )
