@@ -3,7 +3,7 @@ import io from 'socket.io-client'
 
 import { Form, Button } from "react-bootstrap";
 
-const socket = io('http://10.40.0.176:8000', {
+const socket = io('http://localhost:8000', {
     transports: ["websocket"],
     autoConnect: false,
     withCredentials: true,

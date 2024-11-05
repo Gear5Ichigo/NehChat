@@ -12,7 +12,7 @@ export function TopNav() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="/">Home</Nav.Link>
-            <Nav.Link href="/login">Log In</Nav.Link>
+            <Nav.Link href="/">Log In</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
