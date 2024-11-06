@@ -1,10 +1,12 @@
 .pfp {
-    height: 3.1em;
-    width: 3.1em;
+    height: 2.5em;
+    width: 2.5em;
+    margin-top: 0.2em;
 }
 
 li {
     word-break: break-all;
+    padding-left: 1.25em;
 }
 
 li > .message-content {
@@ -17,7 +19,7 @@ li:hover {
 }
 
 .message-content-head-username {
-    margin-right: 0.7em;
+    margin-right: 0.6em;
 }
 
 .message-content-head-username:hover {
@@ -27,4 +29,9 @@ li:hover {
 
 button.btn-link:hover {
     color: rgb(172, 0, 224);
+}
+
+.at-user-highlight {
+    background-color: #ffc9083f;
+    border-left: solid 0.3em #ffca08;
 }

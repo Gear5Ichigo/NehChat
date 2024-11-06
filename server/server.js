@@ -12,6 +12,7 @@ const users = require("./routes/users");
 //
 const { Server } = require("socket.io");
 const { join } = require("node:path")
+const fs = require("node:fs")
 const http = require("http");
 //
 const app = express();
@@ -21,7 +22,7 @@ const io = new Server(server, {
         origin: "http://localhost:5173",
         credentials: true,
         
-    }, allowEIO3: true
+    }, allowEIO3: true, maxHttpBufferSize: 8e8
 });
 const database = require("./database");
 const user_collection = database.collection("Users")
@@ -40,7 +41,7 @@ const session_options = session({
 })
 //
 app
-    .use(express.static(join(__dirname, "../client/dist")))
+    .use(express.static(join(__dirname, "uploads/chat")))
     .use(express.urlencoded({extended: true})) // sets up req.body for forms
     .use(cors({
         origin: ["http://localhost:5173"],
@@ -98,6 +99,8 @@ app.get("/api/authenticate", (req, res, next) => {
     }
 })
 //
+let userstyping = []
+let allusers = []
 io.engine.on("connection_error", (err) => {
     console.log(err)
 })
@@ -108,10 +111,36 @@ io.on('connection', (socket) => {
     console.log(req.session)
 
     socket.on('message', data => {
+        let upload = null
+        if (data.fileItem) {
+            console.log(data.fileItem)
+            data.fileItem.name = `${req.user.username}-${data.fileItem.name}`
+            fs.readdir(join(__dirname, "../client/src/assets/uploads/"), (err, files) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    fs.writeFileSync(join(__dirname, "../client/src/assets/uploads/"+data.fileItem.name), data.fileItem.data, err => {
+                        if (err) console.log(err);
+                    })
+                }
+            });
+            upload = {name: data.fileItem.name, type: data.fileItem.type}
+        }
+
+        const atSymbol = data.message.indexOf('@')
+        const endOfName = data.message.indexOf(' ', atSymbol) != -1 ? data.message.indexOf(' ', atSymbol) : data.message.length;
+        const isUser = allusers.find(user => user.username == data.message.substring(atSymbol+1, endOfName));
+        const targetuser = isUser != undefined ? isUser : {username: '?'};
+
+        console.log("USER_: "+targetuser.username);
+        console.log(file);
+
         const dateTime = new Date(data.date)
+
         io.emit('message', {
             user: req.user,
             message: profanity.censor(data.message),
+            upload: upload,
             dateTime: {
                 total: dateTime.getTime(),
                 month: dateTime.getMonth(),
@@ -124,8 +153,27 @@ io.on('connection', (socket) => {
         });
     })
     
+    socket.on('user typing', () => {
+        
+        if (userstyping.indexOf(req.user)==-1) {
+            userstyping.push(req.user)
+            io.emit('user typing', userstyping);
+        }
+    })
+    socket.on('user not typing', () => {
+        if (userstyping.includes(req.user)) {
+            userstyping.splice(userstyping.indexOf(req.user), 1);
+            io.emit('user typing', userstyping);
+        }
+    })
+
     socket.on('disconnect', () => {
-        console.log("disconnected")
+        console.log("disconnected");
+        if (userstyping.includes(req.user)) {
+            userstyping.splice(userstyping.indexOf(req.user), 1);
+            io.emit('user typing', userstyping);
+        }
+        socket.emit('user tpying');
     })
 
 });
