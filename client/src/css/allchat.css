@@ -1,0 +1,30 @@
+.pfp {
+    height: 3.1em;
+    width: 3.1em;
+}
+
+li {
+    word-break: break-all;
+}
+
+li > .message-content {
+    padding-left: 1em;
+}
+
+li:hover {
+    background-color: rgba(1, 1, 1, 0.1);
+    transition: 200ms;
+}
+
+.message-content-head-username {
+    margin-right: 0.7em;
+}
+
+.message-content-head-username:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+button.btn-link:hover {
+    color: rgb(172, 0, 224);
+}

@@ -26,6 +26,7 @@ router.post("/register", async (req, res) => {
         const new_user = await users.insertOne( {
             username: req.body.username,
             password: req.body.password,
+            color: '#000000',
             profile_picture: 'basic.png',
             title: '',
             level: 0,
