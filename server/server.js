@@ -109,6 +109,12 @@ io.on('connection', (socket) => {
     const req = socket.request
 
     console.log(req.session)
+    if (req.user) {
+        allusers.push(req.user)
+        io.emit('user connected', req.user, allusers)
+        console.log(socket.id);
+        io.to(socket.id).emit('client connect', req.user);
+    }
 
     socket.on('message', data => {
         let upload = null
@@ -133,7 +139,7 @@ io.on('connection', (socket) => {
         const targetuser = isUser != undefined ? isUser : {username: '?'};
 
         console.log("USER_: "+targetuser.username);
-        console.log(file);
+        console.log(data.fileItem);
 
         const dateTime = new Date(data.date)
 
@@ -141,6 +147,7 @@ io.on('connection', (socket) => {
             user: req.user,
             message: profanity.censor(data.message),
             upload: upload,
+            pingUsers: targetuser,
             dateTime: {
                 total: dateTime.getTime(),
                 month: dateTime.getMonth(),
@@ -151,6 +158,10 @@ io.on('connection', (socket) => {
                 second: dateTime.getSeconds(),
             }
         });
+    })
+
+    socket.on('admin censor', (index) => {
+        io.emit('admin censor', index);
     })
     
     socket.on('user typing', () => {

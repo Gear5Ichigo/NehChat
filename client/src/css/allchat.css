@@ -27,11 +27,15 @@ li:hover {
     text-decoration: underline;
 }
 
-button.btn-link:hover {
-    color: rgb(172, 0, 224);
-}
-
 .at-user-highlight {
     background-color: #ffc9083f;
     border-left: solid 0.3em #ffca08;
+}
+
+#welcome-banner {
+    background-image: url("https://static.bandainamcoent.eu/high/dragon-ball/dragonball-xenoverse-2/00-page-setup/dbxv2_game-thumbnail.jpg");
+    background-position:center;
+    color: #ffca08;
+    height: 18em;
+    background-repeat: no-repeat;
 }
