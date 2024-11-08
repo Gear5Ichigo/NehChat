@@ -35,6 +35,7 @@ li:hover {
 #welcome-banner {
     background-image: url("https://static.bandainamcoent.eu/high/dragon-ball/dragonball-xenoverse-2/00-page-setup/dbxv2_game-thumbnail.jpg");
     background-position:center;
+    background-size:cover;
     color: #ffca08;
     height: 18em;
     background-repeat: no-repeat;

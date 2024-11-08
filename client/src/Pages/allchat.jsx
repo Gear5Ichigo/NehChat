@@ -56,16 +56,8 @@ export function AllChat() {
         socket.on('client connect', (user) => {
             setClientUser(user);
         })
-        socket.on('user connected', (user, allusers) => {
-            setMessages((messages)=>[...messages, {
-                user: {
-                    username: "SERVER (real)"
-                },
-                message: `${user.username} joined... yippeee!`,
-                dateTime: {
-                    month: 0, year: 0, day: 0, hour: 0, minute: 0, second: 0,
-                }
-            }])
+        socket.on('user connected', (allmessages, allusers) => {
+            setMessages(allmessages);
         });
         socket.on('user typing', (all) => {
             if (all.length < 7) {
@@ -82,14 +74,12 @@ export function AllChat() {
         })
         socket.on('message', data => {
             const messageContainer = document.querySelector("#messages-container")
-            setMessages((messages)=>[...messages, data]);
+            // setMessages((messages)=>[...messages, data]);
+            setMessages(data);
             setTimeout(() => {
                 messageContainer.scrollTop = messageContainer.scrollHeight
             }, )
         });
-        socket.on('admin censor', (index) => {
-            setCensorIndex(index);
-        })
 
         return () => {
             document.removeEventListener('click', clickOutside)
@@ -99,9 +89,30 @@ export function AllChat() {
             socket.off('user not typing');
             socket.off('user connected');
             socket.off('client connect');
+            socket.off('admin censor')
             socket.disconnect();
         }
     }, []);
+
+    useEffect(()=>{
+
+        socket.on('admin censor', (index) => {
+            const updatedMessages = messages.map((item, i) => {
+                console.log(i === index)
+                if (i == index) {
+                    const updatedItem = Object.assign({}, item);
+                    updatedItem.message = "[This message was censored by the State]"
+                    console.log(updatedItem)
+                    return updatedItem
+                } else return item;
+            })
+            setMessages(updatedMessages);
+        })
+
+        return () => {
+            socket.off('admin censor')
+        }
+    }, [messages])
 
     const checkMessageContinuity = (data, index) => {
         const previous = messages[index-1];

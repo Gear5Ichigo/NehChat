@@ -101,6 +101,11 @@ app.get("/api/authenticate", (req, res, next) => {
 //
 let userstyping = []
 let allusers = []
+let allmessages = []
+function addMessage(msg) {
+    if (allmessages.length >= (2**8) ) allmessages.splice(0, 1);
+    allmessages.push(msg)
+}
 io.engine.on("connection_error", (err) => {
     console.log(err)
 })
@@ -110,8 +115,18 @@ io.on('connection', (socket) => {
 
     console.log(req.session)
     if (req.user) {
-        allusers.push(req.user)
-        io.emit('user connected', req.user, allusers)
+        allusers.push(req.user);
+        addMessage({
+            user: {
+                username: "Goku Server (real)",
+                color: "#00000",
+            },
+            message: `${req.user.username} joined... yippeee!`,
+            dateTime: {
+                month: 0, year: 0, day: 0, hour: 0, minute: 0, second: 0,
+            }
+        })
+        io.emit('user connected', allmessages, allusers)
         console.log(socket.id);
         io.to(socket.id).emit('client connect', req.user);
     }
@@ -143,7 +158,7 @@ io.on('connection', (socket) => {
 
         const dateTime = new Date(data.date)
 
-        io.emit('message', {
+        const processedMessage = {
             user: req.user,
             message: profanity.censor(data.message),
             upload: upload,
@@ -157,11 +172,15 @@ io.on('connection', (socket) => {
                 minute: dateTime.getMinutes(),
                 second: dateTime.getSeconds(),
             }
-        });
+        }
+
+        addMessage(processedMessage)
+
+        io.emit('message', allmessages);
     })
 
     socket.on('admin censor', (index) => {
-        io.emit('admin censor', index);
+        io.emit('admin censor', parseInt(index));
     })
     
     socket.on('user typing', () => {
