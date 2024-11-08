@@ -42,6 +42,7 @@ const session_options = session({
 //
 app
     .use(express.static(join(__dirname, "uploads/chat")))
+    .use(express.json())
     .use(express.urlencoded({extended: true})) // sets up req.body for forms
     .use(cors({
         origin: ["http://localhost:5173"],
@@ -69,6 +70,7 @@ passport.serializeUser( (user, cb) => {
         cb(null, {
             username: user.username,
             pfp: user.profile_picture,
+            color: user.color,
             title: user.title,
             roles: user.roles
         } );
@@ -91,7 +93,6 @@ app.get("/api/theme", (req, res) => {
     res.send({theme: theme})
 })
 app.get("/api/authenticate", (req, res, next) => {
-    console.log(req.isAuthenticated())
     if (req.isAuthenticated()) {
         res.send({res: true})
     } else {
@@ -135,7 +136,7 @@ io.on('connection', (socket) => {
     socket.on('message', data => {
         let upload = null
         if (data.fileItem) {
-            console.log(data.fileItem)
+            console.log(req.user, data.fileItem)
             data.fileItem.name = `${req.user.username}-${data.fileItem.name}`
             fs.readdir(join(__dirname, "../client/src/assets/uploads/"), (err, files) => {
                 if (err) {
@@ -183,12 +184,16 @@ io.on('connection', (socket) => {
     })
 
     socket.on('admin censor', (index) => {
-        allmessages[parseInt(index)].message = "[This message was censored by the State]"
+        const message = allmessages[parseInt(index)];
+        message.message = message.message? "[This message was censored by the State]" : message.message;
+        if (message.upload) {
+            message.upload = {name: 'shaq_time_out.jpg', type: 'images/jpeg'}
+            message.message = message.message? message.message : "[The previous image is not allowed by the State]" ;
+        }
         io.emit('admin censor', allmessages);
     })
     
     socket.on('user typing', () => {
-        
         if (userstyping.indexOf(req.user)==-1) {
             userstyping.push(req.user)
             io.emit('user typing', userstyping);

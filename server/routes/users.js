@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport")
 const { join } = require("node:path")
+const fs = require("node:fs")
 
 const database = require("../database");
 const users = database.collection("Users")
@@ -49,14 +50,24 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/update", async (req, res) => {
-    console.log(req.body.color)
-    const user = await users.findOne( {username: req.body.username} )
+    const byteCharacters = atob(req.body.blob.data);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i<byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const img = new Blob([byteArray], {type: req.body.blob.type})
+    console.log(img)
+    fs.writeFileSync(join(__dirname, "../../client/src/assets/uploads/profile_pictures/"+`${req.user.username}-`+req.body.profile_picture), byteArray)
+    const user = await users.findOne( {username: req.user.username} )
     if (user) {
-        users.updateOne({username: user.username},
-            {$set: {color: req.body.color}}
+        const r = await users.updateOne({username: user.username, password: user.password},
+            {$set: { color: req.body.color, profile_picture: `uploads/profile_pictures/${req.user.username}-`+req.body.profile_picture }}, {upsert:true} 
         );
-        req.user.color = req.body.color
-        res.redirect('/settings?')
+        console.log(r)
+        req.user.color = req.body.color;
+        req.user.pfp = `uploads/profile_pictures/${req.user.username}-`+req.body.profile_picture;
+        res.redirect('/settings?');
     } else {
         res.redirect('/settings?error=true')
     }

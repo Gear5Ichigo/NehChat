@@ -120,7 +120,7 @@ export function AllChat() {
 
     const addUpload = (upload) => {
         if (upload) {
-            const url = "/src/assets/uploads/"+upload.name;
+            const url = "/src/assets/uploads/chat/"+upload.name;
             if (upload.type.includes("image")) {
                 return (
                 <div className="my-2"> <Image style={{maxHeight:"18rem"}} src={url} alt={upload.name} fluid /> </div>
@@ -273,6 +273,12 @@ export function AllChat() {
                             <ListGroup>
                                 <ListGroup.Item>
                                     <Button size="lg" variant="link" onClick={adminCensorClick}> Censor </Button>
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    <Button size="lg" variant="link" onClick={adminCensorClick}> Delete </Button>
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    <Button size="lg" variant="link" onClick={event=>{}}> Mute </Button>
                                 </ListGroup.Item>
                             </ListGroup>
                         </>

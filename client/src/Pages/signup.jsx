@@ -15,6 +15,11 @@ export function SignUp() {
         }
     }
 
+    const handleUsernameTyping = (event) => {
+        const pattern = new RegExp('(?![._])(?!.*[_.]{2})[A-za-z0-9._]{3,20}')
+        pattern.test(event.target.value)
+    }
+
     return (
         <>
             {fail_message()}
@@ -23,7 +28,15 @@ export function SignUp() {
                 <Form action='/api/users/register' method='post'>
                     <Form.Group controlId='userName'>
                         <Form.Label>Name:</Form.Label>
-                        <Form.Control type='text' name='username' required maxLength={20} autoComplete='off'/>
+                        <Form.Control type='text' name='username' required maxLength={20} pattern='(?![._])(?!.*[_.]{2})[A-za-z0-9._]{3,20}' onChange={handleUsernameTyping} autoComplete='off'/>
+                        <small>
+                            <ul>
+                                <li> 3-20 Characters </li>
+                                <li> A-z, 0-9 </li>
+                                <li> No white space; only _ and . </li>
+                                <li> _ and . cant not repeat </li>
+                            </ul>
+                        </small>
                     </Form.Group>
                     <Form.Group controlId='userPassword'>
                         <Form.Label>Password:</Form.Label>

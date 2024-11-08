@@ -4,7 +4,10 @@ import { Button, Container, Form, Image } from "react-bootstrap";
 export function Settings() {
     const [user, setUser] = useState();
     const [color, setColor] = useState('#000000');
-    const [image, setImage] = useState();
+    const [file, setFile] = useState();
+    const [preview, setPreview] = useState();
+    const [imageError, setImageError] = useState();
+    const [files, setFiles] = useState('[]')
 
     useEffect(()=>{
         const auth = async () => {
@@ -17,23 +20,60 @@ export function Settings() {
             })
         }
         auth();
+
         return () => {
 
         }
     }, [])
 
-    const formHandle = (event) => {
-        console.log(color);
+    const formHandle = async (event) => {
+        event.preventDefault();
+        const filefield = event.target.querySelector("input[type='file']");
+        const reader = new FileReader();
+        reader.readAsDataURL(filefield.files[0])
+        reader.onloadend = async function() {
+            let base64data = reader.result;
+            const split = base64data.split(',')
+            const type = split[0].substring(split[0].indexOf('image'), split[0].indexOf(';'));
+            console.log(type)
+            await fetch('/api/users/update', {
+                method: "POST",
+                body: JSON.stringify({
+                    color: color,
+                    profile_picture: filefield.files[0].name,
+                    blob: {
+                        data: split[1],
+                        type: type
+                    }
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+        }
+    }
+
+    const handleProfilePicture = (event) => {
+        setFiles(event.target.files)
+        const selected = event.target.files[0]
+        setFile(event.target.value);
+        if (selected && selected.type.includes('image')) {
+            const objectUrl = URL.createObjectURL(selected);
+            setPreview(objectUrl);
+            (selected.size > 20000*1000)? setImageError("File size is too large") : setImageError("looks good");
+        } else {
+            setImageError("Thats not an image"); event.target.value='';  event.target.files = []
+        }
     }
 
     return user? (
         <>
             <Container>
                 <Button size="lg" variant="link" onClick={()=>{window.location.href="/dashboard"}}>Back</Button>
-                <Form action="/api/users/update" method="post" onSubmit={formHandle}>
+                <Form onSubmit={formHandle}>
                     <Form.Group controlId="user_pfp">
                         <Form.Label> Profile Picture </Form.Label>
-                        <Form.Control type="file" name="profile_picture"/>
+                        <Form.Control type="file" name="profile_picture" onChange={handleProfilePicture} />
                         <div className="d-flex">
                             <div>
                                 <h2> Current </h2>
@@ -41,14 +81,15 @@ export function Settings() {
                             </div>
                             <div>
                                 <h2> Preview </h2>
-                                <div><Image src="" alt="preview" fluid/></div>
+                                <div><Image src={preview} alt="preview" fluid/></div>
                             </div>
                         </div>
+                        <h3>{imageError}</h3>
                     </Form.Group>
 
                     <Form.Group controlId="user_color">
                         <Form.Label> Color </Form.Label>
-                        <Form.Control type="color" name="color" value={color} onChange={ event=>{setColor(event.target.value);console.log(event.target.value)} }/>
+                        <Form.Control type="color" name="color" value={color} onChange={ event=>{setColor(event.target.value);} }/>
                     </Form.Group>
 
                     <Form.Control type="submit" />
