@@ -1,27 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 import { SignUp } from './Pages/signup'
 import { Home } from './Pages/home'
 import { Dashboard } from './Pages/dashbaord'
-import { useEffect, useState } from 'react'
-
-import Button from 'react-bootstrap/Button'
 import { AllChat } from './Pages/allchat'
+import { Settings } from './Pages/settings'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userTheme, setUserTheme] = useState('light')
-
-  const df = async () => {
-    fetch("/api/theme?theme="+userTheme).then(
-      res => res.json()
-    ).then(
-      data => {
-        setUserTheme(data.theme)
-        document.querySelector('html').dataset.bsTheme = data.theme
-      }
-    )
-  }
 
   useEffect( () => {
     fetch('/api/authenticate')
@@ -30,6 +17,9 @@ function App() {
       res.data ? setLoggedIn(true) : setLoggedIn(false)
       console.log(loggedIn)
     })
+    return () => {
+
+    }
   }, [] )
 
   const isAuth = () => {
@@ -45,10 +35,10 @@ function App() {
           <Route index path='/' element={<Home/>}/>
           <Route exact path='/signup' element={<SignUp/>}/>
           <Route exact path='/dashboard' element={ <Dashboard/> } />
+          <Route exact path='/settings' element={ <Settings/> } />
           <Route exact path='/allchat' element={<AllChat/>} />
         </Routes>
       </Router>
-      {/* <Button onClick={df} className='position-absolute bottom-0 end-0'> {userTheme} </Button> */}
     </>
   )
 

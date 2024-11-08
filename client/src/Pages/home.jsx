@@ -12,8 +12,20 @@ export function Home() {
 
     }
 
+    const fail_message = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("login_fail")) {
+            return (
+                <h1 className='text-warning text-center'>
+                    <b>Incorrect Username or Password</b>
+                </h1>
+            )
+        }
+    }
+
     return (
         <>
+            {fail_message()}
             <Container>
                 <h1> Log In </h1>
                 <Form action='/api/users/login' method='post' onSubmit={validateForm}>
@@ -29,7 +41,7 @@ export function Home() {
                 </Form>
                 <hr></hr>
                 <a href='/signup'> Create Account </a>
-                <p> if you forget your password... ask neh </p>
+                <p> dont forget your password </p>
             </Container>
         </>
     )

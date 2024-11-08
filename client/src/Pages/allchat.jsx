@@ -3,7 +3,7 @@ import io from 'socket.io-client'
 
 import { Form, Popover, Overlay, Button, Image, Modal, ListGroup, Card } from "react-bootstrap";
 import "../css/allchat.css"
-import basic from "/public/34AD2.jpg"
+import basic from "/src/assets/basic.jpg"
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -96,16 +96,7 @@ export function AllChat() {
 
     useEffect(()=>{
 
-        socket.on('admin censor', (index) => {
-            const updatedMessages = messages.map((item, i) => {
-                console.log(i === index)
-                if (i == index) {
-                    const updatedItem = Object.assign({}, item);
-                    updatedItem.message = "[This message was censored by the State]"
-                    console.log(updatedItem)
-                    return updatedItem
-                } else return item;
-            })
+        socket.on('admin censor', (updatedMessages) => {
             setMessages(updatedMessages);
         })
 
@@ -206,7 +197,7 @@ export function AllChat() {
     }
 
 
-    return (
+    return (clientUser? (
         <div className="position-absolute bottom-0 w-100" >
             <div style={ {maxHeight:"100vh"} } className="overflow-y-scroll" id="messages-container">
                 <ul style={ {listStyle: "none", padding:0} } className="" >
@@ -219,14 +210,14 @@ export function AllChat() {
                         
                         {checkMessageContinuity(data, index)? (
                             <div className="pfp">
-                                <Image src={basic} alt="profile_pic" roundedCircle fluid />
+                                <Image src={"/src/assets/"+data.user.pfp} alt="profile_pic" roundedCircle fluid />
                             </div>
                         ) : ( <div style={ {width:"2.5em"} }></div> )}
 
                         <div className="message-content" >
                             {checkMessageContinuity(data, index)? (
                                 <div className="message-content-head">
-                                    <b className="message-content-head-username">{data.user.username}</b>
+                                    <b className="message-content-head-username" style={{color:data.user.color}}>{data.user.username}</b>
                                     <small> {`${data.dateTime.month+1}/${data.dateTime.day}/${data.dateTime.year}`}</small>
                                     <small> {`${data.dateTime.hour}:${data.dateTime.minute}:${data.dateTime.second}`} XM </small>
                                 </div>
@@ -240,6 +231,7 @@ export function AllChat() {
                                 {/* <small>reactions here lol</small> */}
                             </div>
                         </div>
+
                     </li>)}
                 </ul>
             </div>
@@ -302,5 +294,5 @@ export function AllChat() {
             </Modal>
 
         </div>
-    )
+    ) : (<> <h1> Verifying . . . </h1> </>) )
 }

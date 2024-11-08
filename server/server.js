@@ -119,7 +119,8 @@ io.on('connection', (socket) => {
         addMessage({
             user: {
                 username: "Goku Server (real)",
-                color: "#00000",
+                color: '#42f5ef',
+                pfp: '1cb.jpg',
             },
             message: `${req.user.username} joined... yippeee!`,
             dateTime: {
@@ -140,7 +141,7 @@ io.on('connection', (socket) => {
                 if (err) {
                     console.log(err);
                 } else {
-                    fs.writeFileSync(join(__dirname, "../client/src/assets/uploads/"+data.fileItem.name), data.fileItem.data, err => {
+                    fs.writeFileSync(join(__dirname, "../client/src/assets/uploads/chat/"+data.fileItem.name), data.fileItem.data, err => {
                         if (err) console.log(err);
                     })
                 }
@@ -149,12 +150,14 @@ io.on('connection', (socket) => {
         }
 
         const atSymbol = data.message.indexOf('@')
-        const endOfName = data.message.indexOf(' ', atSymbol) != -1 ? data.message.indexOf(' ', atSymbol) : data.message.length;
-        const isUser = allusers.find(user => user.username == data.message.substring(atSymbol+1, endOfName));
-        const targetuser = isUser != undefined ? isUser : {username: '?'};
+        let targetuser = {username: "?"}
+        if (atSymbol!=-1) {
+            const endOfName = data.message.indexOf(' ', atSymbol) != -1 ? data.message.indexOf(' ', atSymbol) : data.message.length;
+            const isUser = allusers.find(user => user.username == data.message.substring(atSymbol+1, endOfName));
+            targetuser = isUser != undefined ? isUser : {username: '?'};
+        }
 
-        console.log("USER_: "+targetuser.username);
-        console.log(data.fileItem);
+        console.log("USER_: "+targetuser.username), data.fileItem;
 
         const dateTime = new Date(data.date)
 
@@ -180,7 +183,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('admin censor', (index) => {
-        io.emit('admin censor', parseInt(index));
+        allmessages[parseInt(index)].message = "[This message was censored by the State]"
+        io.emit('admin censor', allmessages);
     })
     
     socket.on('user typing', () => {

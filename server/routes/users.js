@@ -7,9 +7,13 @@ const users = database.collection("Users")
 
 const router = express.Router();
 
+router.get("/get_user", (req, res) => {
+    res.send({user: req.user})
+})
+
 router.post("/login", passport.authenticate('local', {
     successRedirect: '/dashboard',
-    failureRedirect: '/login'
+    failureRedirect: '/?login_fail=true'
 }));
 
 router.post("/logout", (req, res, next) => {
@@ -27,7 +31,7 @@ router.post("/register", async (req, res) => {
             username: req.body.username,
             password: req.body.password,
             color: '#000000',
-            profile_picture: 'basic.png',
+            profile_picture: 'basic.jpg',
             title: '',
             level: 0,
             joined: 'n/a',
@@ -40,8 +44,22 @@ router.post("/register", async (req, res) => {
             }
         })
     } else {
-        res.redirect('/signup')
+        res.redirect('/signup?register_fail=true&reason=user_already_exists')
     }
 });
+
+router.post("/update", async (req, res) => {
+    console.log(req.body.color)
+    const user = await users.findOne( {username: req.body.username} )
+    if (user) {
+        users.updateOne({username: user.username},
+            {$set: {color: req.body.color}}
+        );
+        req.user.color = req.body.color
+        res.redirect('/settings?')
+    } else {
+        res.redirect('/settings?error=true')
+    }
+})
 
 module.exports = router;
