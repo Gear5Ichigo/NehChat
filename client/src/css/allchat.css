@@ -1,7 +1,9 @@
-.pfp {
-    height: 2.5em;
-    width: 2.5em;
+.neh-avatar {
+    background-size: cover;
+    background-position: top center;
+    width: 2.5em; height: 2.5em;
     margin-top: 0.2em;
+    border-radius: 50%;
 }
 
 li {

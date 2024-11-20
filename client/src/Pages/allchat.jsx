@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import io from 'socket.io-client'
 
-import { Form, Popover, Overlay, Button, Image, Modal, ListGroup, Card } from "react-bootstrap";
+import { Form, Popover, Overlay, Button, Image, Modal, ListGroup, Card, ButtonGroup, DropdownButton, Dropdown, Accordion, ListGroupItem } from "react-bootstrap";
 import "../css/allchat.css"
 import basic from "/src/assets/basic.jpg"
 
@@ -198,107 +198,109 @@ export function AllChat() {
 
 
     return (clientUser? (
-        <div className="position-absolute bottom-0 w-100" >
-            <div style={ {maxHeight:"100vh"} } className="overflow-y-scroll" id="messages-container">
-                <ul style={ {listStyle: "none", padding:0} } className="" >
-                    <li id="welcome-banner"> <h2 className="py-5"> Welcome to All CHAT </h2> </li>
-                    {messages.map((data, index) =>
-                    <li id={`user_message_${index}`} data-index={index} key={index} className={ isPingMsg(data, index) }
-                    onContextMenu={messageControlPanel}
-                    ref={ref2}
-                    >
-                        
-                        {checkMessageContinuity(data, index)? (
-                            <div className="pfp">
-                                <Image src={"/src/assets/"+data.user.pfp} alt="profile_pic" roundedCircle fluid />
-                            </div>
-                        ) : ( <div style={ {width:"2.5em"} }></div> )}
-
-                        <div className="message-content" >
-                            {checkMessageContinuity(data, index)? (
-                                <div className="message-content-head">
-                                    <b className="message-content-head-username" style={{color:data.user.color}}>{data.user.username}</b>
-                                    <small> {`${data.dateTime.month+1}/${data.dateTime.day}/${data.dateTime.year}`}</small>
-                                    <small> {`${data.dateTime.hour}:${data.dateTime.minute}:${data.dateTime.second}`} XM </small>
-                                </div>
-                            ) : (<></>)}
-
-                            <div className="message-conetent-body">
-                                {addUpload(data.upload)}
-                                <div> {data.message} </div>
-                            </div>
-                            <div className="message-content-footer">
-                                {/* <small>reactions here lol</small> */}
-                            </div>
-                        </div>
-
-                    </li>)}
-                </ul>
-            </div>
-
-            <div className="" >
-                <div style={ {display:showTyping} } > <b> {usersTyping} </b> </div>
-                <Form onSubmit={messageSubmit} className="d-flex">
-                    <Form.Control type="file" className="w-25" onChange={ event => {
-                        setFileUpload(event.target.files[0])
-                        setFileField(event.target.value)
-                    }} value={fileField} />
-                    <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } />
-                    <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" />
-                </Form>
-            </div>
-
-            <Overlay show={showPopover} target={popoverTarget} placement="top" ref={ref} >
-                <Popover>
-                    <Popover.Body> Emoji1 | Emoji2 | Emoji3 </Popover.Body>
-                </Popover>
-            </Overlay>
-
-            <Overlay
-                placement="top"
-                show={showControlPanel}
-                target={panelTarget}
-            >
-                <Card>
-                    <Button size="sm" variant="danger" onClick={ () => setShowControlPanel(false) }>Close</Button>
+        <>
+            <div className="d-flex position-relative">
+                <div style={{width: "300px"}}>
                     <ListGroup>
-                        <ListGroup.Item>
-                            <Button size="lg" variant="link" onClick={userReplyClick}>Reply</Button>
-                        </ListGroup.Item>
+                        <ListGroup.Item action> Log Out </ListGroup.Item>
+                        <ListGroup.Item action> All Chat </ListGroup.Item>
+                        <ListGroup.Item action> Settings </ListGroup.Item>
+                        <ListGroup.Item action> Games </ListGroup.Item>
                     </ListGroup>
-                    
-                    { (clientUser && clientUser.roles.includes("admin")) ? (
-                        <>
-                            <Card.Title> Admin </Card.Title>
-                            <ListGroup>
-                                <ListGroup.Item>
-                                    <Button size="lg" variant="link" onClick={adminCensorClick}> Censor </Button>
-                                </ListGroup.Item>
-                                <ListGroup.Item>
-                                    <Button size="lg" variant="link" onClick={adminCensorClick}> Delete </Button>
-                                </ListGroup.Item>
-                                <ListGroup.Item>
-                                    <Button size="lg" variant="link" onClick={event=>{}}> Mute </Button>
-                                </ListGroup.Item>
-                            </ListGroup>
-                        </>
-                    ) : (<></>)}
-                </Card>
-            </Overlay>
+                </div>
+                <div className="w-100" >
+                    <div>
+                    <div style={ {maxHeight:"100vh"} } className="overflow-y-scroll" id="messages-container">
+                        <ul style={ {listStyle: "none", padding:0} } className="" >
+                            <li id="welcome-banner"> <h2 className="py-5"> Welcome to All CHAT </h2> </li>
+                            {messages.map((data, index) =>
+                            <li id={`user_message_${index}`} data-index={index} key={index} className={ isPingMsg(data, index) }
+                            onContextMenu={messageControlPanel}
+                            ref={ref2}
+                            >
+                                
+                                {checkMessageContinuity(data, index)? (
+                                    <div style={{
+                                        backgroundImage: `url(${"/src/assets/"+data.user.pfp})`,
+                                    }} className="neh-avatar"></div>
+                                ) : ( <div style={ {width:"2.5em"} }></div> )}
 
-            <Modal
-            show={showModal}
-            onHide={closeModal}
-            >
-                <Modal.Header>
-                    <Modal.Title> Oops... </Modal.Title>
-                </Modal.Header>
-                <Modal.Body dangerouslySetInnerHTML={{__html: modalBodyText}}/>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={closeModal} > Close </Button>
-                </Modal.Footer>
-            </Modal>
+                                <div className="message-content" >
+                                    {checkMessageContinuity(data, index)? (
+                                        <div className="message-content-head">
+                                            <b className="message-content-head-username" style={{color:data.user.color}}>{data.user.username}</b>
+                                            <small> {`${data.dateTime.month+1}/${data.dateTime.day}/${data.dateTime.year}`}</small>
+                                            <small> {`${data.dateTime.hour}:${data.dateTime.minute}:${data.dateTime.second}`} XM </small>
+                                        </div>
+                                    ) : (<></>)}
 
-        </div>
+                                    <div className="message-conetent-body">
+                                        {addUpload(data.upload)}
+                                        <div> {data.message} </div>
+                                    </div>
+                                    <div className="message-content-footer">
+                                        {/* <small>reactions here lol</small> */}
+                                    </div>
+                                </div>
+
+                            </li>)}
+                        </ul>
+                    </div>
+
+                    <div className="" >
+                        <div style={ {display:showTyping} } > <b> {usersTyping} </b> </div>
+                        <Form onSubmit={messageSubmit} className="d-flex">
+                            <Form.Control type="file" className="w-25" onChange={ event => {
+                                setFileUpload(event.target.files[0])
+                                setFileField(event.target.value)
+                            }} value={fileField} />
+                            <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } />
+                            <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" />
+                        </Form>
+                    </div>                    
+
+                    <Overlay show={showPopover} target={popoverTarget} placement="top" ref={ref} >
+                        <Popover>
+                            <Popover.Body> Emoji1 | Emoji2 | Emoji3 </Popover.Body>
+                        </Popover>
+                    </Overlay>
+
+                    <Overlay
+                        placement="top"
+                        show={showControlPanel}
+                        target={panelTarget}
+                    >
+                        <ListGroup className="">
+                            <ListGroup.Item action onClick={ () => setShowControlPanel(false) } className="bg-danger text-center text-light"> X </ListGroup.Item>
+                            <ListGroup.Item action onClick={userReplyClick}> Reply </ListGroup.Item>
+                        
+                            { (clientUser && clientUser.roles.includes("admin")) ? (
+                            <>
+                                <ListGroup.Item as={Accordion} style={{margin: 0, padding: 0}} >
+                                    <Accordion.Header> Admin </Accordion.Header>
+                                    <Accordion.Body as={ListGroup.Item} action onClick={adminCensorClick}> Censor
+                                    </Accordion.Body>
+                                </ListGroup.Item>
+                            </>
+                            ) : (<></>)}
+                        </ListGroup>
+                    </Overlay>
+
+                    <Modal
+                    show={showModal}
+                    onHide={closeModal}
+                    >
+                        <Modal.Header>
+                            <Modal.Title> Oops... </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body dangerouslySetInnerHTML={{__html: modalBodyText}}/>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={closeModal} > Close </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+                </div>
+            </div>
+        </>
     ) : (<> <h1> Verifying . . . </h1> </>) )
 }

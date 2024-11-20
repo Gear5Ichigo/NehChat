@@ -57,16 +57,17 @@ router.post("/update", async (req, res) => {
     }
     const byteArray = new Uint8Array(byteNumbers);
     const img = new Blob([byteArray], {type: req.body.blob.type})
+    const extension = req.body.blob.type.substring(req.body.blob.type.indexOf("/")+1);
     console.log(img)
-    fs.writeFileSync(join(__dirname, "../../client/src/assets/uploads/profile_pictures/"+`${req.user.username}-`+req.body.profile_picture), byteArray)
+    fs.writeFileSync(join(__dirname, "../../client/src/assets/uploads/profile_pictures/"+`${req.user.username}.`+extension), byteArray)
     const user = await users.findOne( {username: req.user.username} )
     if (user) {
         const r = await users.updateOne({username: user.username, password: user.password},
-            {$set: { color: req.body.color, profile_picture: `uploads/profile_pictures/${req.user.username}-`+req.body.profile_picture }}, {upsert:true} 
+            {$set: { color: req.body.color, profile_picture: `uploads/profile_pictures/${req.user.username}.`+extension }}, {upsert:true} 
         );
         console.log(r)
         req.user.color = req.body.color;
-        req.user.pfp = `uploads/profile_pictures/${req.user.username}-`+req.body.profile_picture;
+        req.user.pfp = `uploads/profile_pictures/${req.user.username}.`+extension ;
         res.redirect('/settings?');
     } else {
         res.redirect('/settings?error=true')
