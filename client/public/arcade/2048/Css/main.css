@@ -7,6 +7,7 @@
 .title {
     text-align: center;
     color:white;
+	font-size: 100px;
 }
 .block {
     width:125px;
@@ -27,6 +28,7 @@
     padding-top: 5px;
     padding-bottom: 5px;
     height: 80%;
+	border: solid 3px white;
 }
 
 
@@ -55,4 +57,9 @@
 
 body {
     background-color: black;
+}
+
+.score{
+	text-align: center;
+	color:white;
 }

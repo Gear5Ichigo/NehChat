@@ -29,7 +29,6 @@ function App() {
 
   return (
     <>
-      
       <Router>
         <Routes>
           <Route index path='/' element={<Home/>}/>

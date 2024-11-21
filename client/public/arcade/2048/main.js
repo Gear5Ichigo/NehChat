@@ -29,7 +29,9 @@ class Block {
             let tmp = this.tile + block.tile;
             this.tile = tmp;
             block.tile = 0;
+			return tmp;
         }
+		
     }
 
 
@@ -49,7 +51,7 @@ class Game {
             [new Block(2,0),new Block(2,1),new Block(2,2),new Block(2,3)],
             [new Block(3,0),new Block(3,1),new Block(3,2),new Block(3,3)]
         ];
-
+		this.score = 0;
         this.start();
 
         this.Reset();
@@ -57,6 +59,7 @@ class Game {
     }
 
     start() {
+		
         this.addTile();
         this.addTile();
         this.draw();
@@ -64,8 +67,10 @@ class Game {
 
     Reset() {
         console.log("Hello");
-        this.boardWipe();
+        this.score = 0;
+		this.boardWipe();
         this.start();
+
     }
 
     boardWipe() {
@@ -106,6 +111,7 @@ class Game {
     draw() {
         let html = this.printHTML();
         document.querySelector(".gameContainer").innerHTML = html;
+		this.drawScore();
     }
 
 
@@ -182,13 +188,10 @@ class Game {
                 swap = this.blocks[chngrow][chngcol];
                 chngrow = this.chngRow(chngrow,dir);
                 chngcol = this.chngCol(chngcol,dir);
-                this.swapTile(block,swap);
-                block = swap;
-                swap = null;
                 this.draw();
                 
             } else if(this.blocks[chngrow][chngcol].tile == block.tile) {
-                block.chkMerge(this.blocks[chngrow][chngcol]);
+                this.score += block.chkMerge(this.blocks[chngrow][chngcol]);
                 
             } else {
                 break;
@@ -230,6 +233,12 @@ class Game {
             this.draw();
         }, 5000);
     }
+
+
+	drawScore() {
+		let html = this.printHTML();
+        document.querySelector(".score").innerHTML = `Score: ${this.score}`;
+	}
 }
 
 let game = new Game()
