@@ -55,7 +55,8 @@ class Game {
         this.start();
 
         this.Reset();
-        
+        this.tiles = 0;
+        this.ismoved = false;
     }
 
     start() {
@@ -70,9 +71,19 @@ class Game {
         this.score = 0;
 		this.boardWipe();
         this.start();
-
     }
-
+    cntTiles() {
+        let count = 0;
+        for(var x = 0; x < this.blocks.length; x++) {
+            for(var y = 0; y < this.blocks.length; y++) {
+                let block = this.blocks[x][y];
+                if(block.tile != 0) {
+                    count++;
+                }
+            }
+        }
+        this.tiles = count;
+    }
     boardWipe() {
         for(var x = 0; x < this.blocks.length; x++) {
             for(var y = 0; y < this.blocks.length; y++) {
@@ -150,15 +161,20 @@ class Game {
 
 
     shiftTiles(dir) {
+        this.ismoved = false;
         for(var row = 0; row < this.blocks.length; row++) {
             for(var col = 0; col < this.blocks[row].length; col++) {
-                let block = this.blocks[row][col]
-                this.dirShift(dir,row,col)
+                let block = this.blocks[row][col];
+                this.dirShift(dir,row,col);
             }
         }
-        this.addTile();
-        this.draw();
         
+        if(this.ismoved) {
+            this.addTile();
+        }
+        
+        this.draw();
+        this.cntTiles();
     }
 
     dirShift(dir,row,col) {
@@ -189,10 +205,11 @@ class Game {
                 chngrow = this.chngRow(chngrow,dir);
                 chngcol = this.chngCol(chngcol,dir);
                 this.draw();
+                this.ismoved = true;
                 
             } else if(this.blocks[chngrow][chngcol].tile == block.tile) {
                 this.score += block.chkMerge(this.blocks[chngrow][chngcol]);
-                
+                this.ismoved = true;
             } else {
                 break;
             }
@@ -200,16 +217,12 @@ class Game {
 
         }
         if(swap!=null) {
-            console.log("Work");
+            //console.log("Work");
             this.swapTile(block,swap);
-        }
-
-        
+        }        
     }
-
-    tileCheck() {
-        
-    }
+    
+    
     chngCol(col,dir) {
         if(dir == 3) {col--;}
         if(dir == 1) {col++;}
@@ -221,6 +234,8 @@ class Game {
         if(dir == 0) {row--;}
         return row;
     }
+
+
     swapTile(block1,block2) {
         let tmp = block1.tile;
         block2.tile = tmp;
@@ -239,6 +254,7 @@ class Game {
 		let html = this.printHTML();
         document.querySelector(".score").innerHTML = `Score: ${this.score}`;
 	}
+
 }
 
 let game = new Game()
@@ -258,15 +274,15 @@ let res = document.getElementById("reset");
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 87) {
         game.shiftTiles(0);
-        console.log(event.keyCode);
+       // console.log(event.keyCode);
     } else if(event.keyCode == 65) {
         game.shiftTiles(3);
-        console.log(event.keyCode);
+       // console.log(event.keyCode);
     } else if(event.keyCode == 68) {
         game.shiftTiles(1);
-        console.log(event.keyCode);
+       // console.log(event.keyCode);
     } else if(event.keyCode == 83) {
         game.shiftTiles(2);
-        console.log(event.keyCode);
+       // console.log(event.keyCode);
     }
 });
