@@ -4,6 +4,7 @@ import io from 'socket.io-client'
 import { Form, Popover, Overlay, Button, Image, Modal, ListGroup, Card, ButtonGroup, DropdownButton, Dropdown, Accordion, ListGroupItem } from "react-bootstrap";
 import "../css/allchat.css"
 import basic from "/src/assets/basic.jpg"
+import UserActionsList from "../Components/allchat/UserActionsList";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -265,26 +266,14 @@ export function AllChat() {
                         </Popover>
                     </Overlay>
 
-                    <Overlay
-                        placement="top"
-                        show={showControlPanel}
-                        target={panelTarget}
-                    >
-                        <ListGroup className="">
-                            <ListGroup.Item action onClick={ () => setShowControlPanel(false) } className="bg-danger text-center text-light"> X </ListGroup.Item>
-                            <ListGroup.Item action onClick={userReplyClick}> Reply </ListGroup.Item>
-                        
-                            { (clientUser && clientUser.roles.includes("admin")) ? (
-                            <>
-                                <ListGroup.Item as={Accordion} style={{margin: 0, padding: 0}} >
-                                    <Accordion.Header> Admin </Accordion.Header>
-                                    <Accordion.Body as={ListGroup.Item} action onClick={adminCensorClick}> Censor
-                                    </Accordion.Body>
-                                </ListGroup.Item>
-                            </>
-                            ) : (<></>)}
-                        </ListGroup>
-                    </Overlay>
+                    <UserActionsList
+                    show={showControlPanel}
+                    target={panelTarget}
+                    clientUser={clientUser}
+                    closeFunc={()=>{setShowControlPanel(false)}}
+                    replyFunc={userReplyClick}
+                    adminCensorFunc={adminCensorClick}
+                    />
 
                     <Modal
                     show={showModal}
