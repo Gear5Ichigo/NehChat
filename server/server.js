@@ -134,6 +134,9 @@ io.on('connection', (socket) => {
     }
 
     socket.on('message', data => {
+        if (!req.user) {
+            socket.emit('redirect'); return;
+        }
         let upload = null
         if (data.fileItem) {
             console.log(req.user, data.fileItem)
