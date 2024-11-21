@@ -101,6 +101,7 @@ app.get("/api/authenticate", (req, res, next) => {
 })
 //
 let userstyping = []
+let mutedusers = []
 let allusers = []
 let allmessages = []
 function addMessage(msg) {
@@ -145,9 +146,16 @@ io.on('connection', (socket) => {
                 if (err) {
                     console.log(err);
                 } else {
-                    fs.writeFileSync(join(__dirname, "../client/src/assets/uploads/chat/"+data.fileItem.name), data.fileItem.data, err => {
+                    const dir = "../client/src/assets/uploads/chat/"+data.fileItem.name
+                    fs.writeFileSync(join(__dirname, dir), data.fileItem.data, err => {
                         if (err) console.log(err);
                     })
+                    setTimeout(()=>{
+                        fs.unlink(dir, (err)=>{
+                            if (err) console.log(err);
+                            console.log("timeout reached, file deleted")
+                        })
+                    }, 300*1000) // seconds * 1000 which converts it to ms
                 }
             });
             upload = {name: data.fileItem.name, type: data.fileItem.type}
@@ -186,6 +194,11 @@ io.on('connection', (socket) => {
         io.emit('message', allmessages);
     })
 
+    socket.on('delete message', (index) => {
+        allmessages.splice(parseInt(index), 1);
+        io.emit('update messages', allmessages);
+    })
+
     socket.on('admin censor', (index) => {
         const message = allmessages[parseInt(index)];
         message.message = message.message? "[This message was censored by the State]" : message.message;
@@ -193,9 +206,13 @@ io.on('connection', (socket) => {
             message.upload = {name: 'shaq_time_out.jpg', type: 'images/jpeg'}
             message.message = message.message? message.message : "[The previous image is not allowed by the State]" ;
         }
-        io.emit('admin censor', allmessages);
+        io.emit('update messages', allmessages);
     })
     
+    socket.on('admin mute', () => {
+        
+    })
+
     socket.on('user typing', () => {
         if (userstyping.indexOf(req.user)==-1) {
             userstyping.push(req.user)

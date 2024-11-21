@@ -1,10 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import io from 'socket.io-client'
 
-import { Form, Popover, Overlay, Button, Image, Modal, ListGroup, Card, ButtonGroup, DropdownButton, Dropdown, Accordion, ListGroupItem } from "react-bootstrap";
+import { Form, Image } from "react-bootstrap";
 import "../css/allchat.css"
-import basic from "/src/assets/basic.jpg"
-import UserActionsList from "../Components/allchat/UserActionsList";
+
+import AlertModal from "../Components/allchat/AlertModal"
+import ReactionsPopover from "../Components/allchat/ReactionsPopover"
+import UserActionsList from "../Components/allchat/UserActionsList"
+import SideMenu from "../Components/allchat/SideMenu";
+import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -24,7 +28,6 @@ export function AllChat() {
     const [showControlPanel, setShowControlPanel] = useState(false);
     const [panelTarget, setPanelTarget] = useState();
     const [panelCurrentTarget, setPanelCurrentTarget] = useState();
-    const [censorIndex, setCensorIndex] = useState();
 
     const ref = useRef(null);
     const ref2 = useRef(null);
@@ -60,6 +63,9 @@ export function AllChat() {
         socket.on('user connected', (allmessages, allusers) => {
             setMessages(allmessages);
         });
+        socket.on('redirect', () => {
+            window.location.href = "/";
+        })
         socket.on('user typing', (all) => {
             if (all.length < 7) {
                 let addition = '';
@@ -85,24 +91,25 @@ export function AllChat() {
         return () => {
             document.removeEventListener('click', clickOutside)
             //
+            socket.off('redirect');
             socket.off('message');
             socket.off('user typing');
             socket.off('user not typing');
             socket.off('user connected');
             socket.off('client connect');
-            socket.off('admin censor')
+            socket.off('admin censor');
             socket.disconnect();
         }
     }, []);
 
     useEffect(()=>{
 
-        socket.on('admin censor', (updatedMessages) => {
+        socket.on('update messages', (updatedMessages) => {
             setMessages(updatedMessages);
         })
 
         return () => {
-            socket.off('admin censor')
+            socket.off('update messages')
         }
     }, [messages])
 
@@ -144,7 +151,6 @@ export function AllChat() {
 
     const clickOutside = (ev) => {
         if (ref.current && !ref.current.contains(ev.target) && showPopover ) {
-            
             setShowPopover(false);
         }
         console.log(showPopover)
@@ -154,20 +160,20 @@ export function AllChat() {
 
     const messageSubmit = (event) => {
         event.preventDefault();
-        socket.emit("user not typing")
-        let fileItem = null;
-
-        if (fileUpload) {
-            if (fileUpload.size > 50000*1000) {
-                setShowModal(true); setModalBodyText(`File exceeds limit <b> 50MB </b>`)
-                return
-            } else fileItem = {name: fileUpload.name, data: fileUpload, type: fileUpload.type} ;
-        }
-
-        if (message.length > 0 || fileUpload) {
-            socket.emit('message', {message: message, fileItem: fileItem, date: Date.now() });
-            setMessage(''); setFileUpload(null); setFileField('');
-        }
+            socket.emit("user not typing")
+            let fileItem = null;
+    
+            if (fileUpload) {
+                if (fileUpload.size > 50000*1000) {
+                    setShowModal(true); setModalBodyText(`File exceeds limit <b> 50MB </b>`)
+                    return
+                } else fileItem = {name: fileUpload.name, data: fileUpload, type: fileUpload.type} ;
+            }
+    
+            if (message.length > 0 || fileUpload) {
+                socket.emit('message', {message: message, fileItem: fileItem, date: Date.now() });
+                setMessage(''); setFileUpload(null); setFileField('');
+            }
     }
 
     const handleTyping = (event) => {
@@ -181,14 +187,14 @@ export function AllChat() {
 
     const messageControlPanel = (event) => {
         event.preventDefault();
-        setShowControlPanel(true);
+        if (!showControlPanel) {setShowControlPanel(true)}
         setPanelTarget(event.target);
         setPanelCurrentTarget(event.currentTarget)
     }
     
     const userReplyClick = () => {
-        const n = panelCurrentTarget.querySelector(".message-content-head-username");
-        setMessage(`@${n.innerText} ${message} `);
+        const n = panelCurrentTarget.dataset.user;
+        setMessage(`@${n} ${message} `);
         setShowControlPanel(false);
         document.querySelector("form > input[type='text']").focus();
     }
@@ -197,29 +203,31 @@ export function AllChat() {
         socket.emit('admin censor', panelCurrentTarget.dataset.index); setShowControlPanel(false)
     }
 
+    const adminMuteClick = () => {
+        socket.emit('admin mute')
+    }
+
+    const userDeleteClick = (index) => {
+        socket.emit("delete message", panelCurrentTarget.dataset.index); setShowControlPanel(false)
+    }
 
     return (clientUser? (
         <>
-            <div className="d-flex position-relative">
-                <div style={{width: "300px"}}>
-                    <ListGroup>
-                        <ListGroup.Item action> Log Out </ListGroup.Item>
-                        <ListGroup.Item action> All Chat </ListGroup.Item>
-                        <ListGroup.Item action> Settings </ListGroup.Item>
-                        <ListGroup.Item action> Games </ListGroup.Item>
-                    </ListGroup>
-                </div>
-                <div className="w-100" >
-                    <div>
-                    <div style={ {maxHeight:"100vh"} } className="overflow-y-scroll" id="messages-container">
-                        <ul style={ {listStyle: "none", padding:0} } className="" >
+            <div className="d-flex" style={{height:"100vh"}}>
+                <SideMenu />
+
+                <div className="w-100" style={{alignSelf:"flex-end"}}>
+                    <div className="overflow-y-auto position-relative" id="messages-container" style={{height:"100vh"}}>
+                        <ul style={ {listStyle: "none", padding:0} } className=" w-100" >
                             <li id="welcome-banner"> <h2 className="py-5"> Welcome to All CHAT </h2> </li>
                             {messages.map((data, index) =>
-                            <li id={`user_message_${index}`} data-index={index} key={index} className={ isPingMsg(data, index) }
+                            <li id={`user_message_${index}`} className={ isPingMsg(data, index) }
+                            key={index}
+                            data-index={index}
+                            data-user={data.user.username}
                             onContextMenu={messageControlPanel}
                             ref={ref2}
                             >
-                                
                                 {checkMessageContinuity(data, index)? (
                                     <div style={{
                                         backgroundImage: `url(${"/src/assets/"+data.user.pfp})`,
@@ -260,35 +268,29 @@ export function AllChat() {
                         </Form>
                     </div>                    
 
-                    <Overlay show={showPopover} target={popoverTarget} placement="top" ref={ref} >
-                        <Popover>
-                            <Popover.Body> Emoji1 | Emoji2 | Emoji3 </Popover.Body>
-                        </Popover>
-                    </Overlay>
+                    <ReactionsPopover />
 
                     <UserActionsList
                     show={showControlPanel}
-                    target={panelTarget}
+                    target={panelTarget} currentTarget={panelCurrentTarget}
                     clientUser={clientUser}
                     closeFunc={()=>{setShowControlPanel(false)}}
                     replyFunc={userReplyClick}
+                    deleteFunc={userDeleteClick}
                     adminCensorFunc={adminCensorClick}
+                    adminMuteFunc={adminMuteClick}
                     />
 
-                    <Modal
+                    <AlertModal
                     show={showModal}
                     onHide={closeModal}
-                    >
-                        <Modal.Header>
-                            <Modal.Title> Oops... </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body dangerouslySetInnerHTML={{__html: modalBodyText}}/>
-                        <Modal.Footer>
-                            <Button variant="primary" onClick={closeModal} > Close </Button>
-                        </Modal.Footer>
-                    </Modal>
+                    modalBodyText={modalBodyText}
+                    />
+                    
                 </div>
-                </div>
+
+                <AllUsersInRoom />
+
             </div>
         </>
     ) : (<> <h1> Verifying . . . </h1> </>) )
