@@ -1,4 +1,3 @@
-
 class Block {
     constructor(row,col) {
         this.tile = 0;
@@ -41,9 +40,12 @@ class Block {
 }
 
 
-
-
-
+let user = null;
+const _get_user = async () => {
+    await fetch('/api/users/get_user')
+    .then(res => res.json())
+    .then(data => user = data.user);
+}; _get_user();
 
 class Game {
     constructor() {
@@ -123,7 +125,28 @@ class Game {
             }
         }
         if(canMerge==false) {
-            alert("Lost Game");
+            (async () => {
+                await fetch('/api/games/2048_score_submit', {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({score: this.score})
+                })
+                .then( res => res.json() )
+                .then( data => {
+                    const scoreboard = document.querySelector("ul.scoreboard");
+                    for (const key in data.scores) {
+                        console.log(key, data.scores[key])
+                        const newlisting = document.createElement("li");
+                        newlisting.className = "text-light font-bold"
+                        newlisting.innerText = `${key}: ${data.scores[key]}`
+                        scoreboard.appendChild(newlisting)
+                    }
+                });
+            })();
+            alert(`${user.username} why did you lose...`);
         }
     }
 
@@ -319,7 +342,9 @@ let res = document.getElementById("reset");
 
 
 
+document.addEventListener('load', () => {
 
+})
 
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 87) {
