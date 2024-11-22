@@ -1,30 +1,24 @@
-import { Application,Assets,Sprite } from 'pixi.js';
+console.log("hello");
+const cont = document.querySelector(".container");
+let colr = false;
+for(var x = 0; x < 8; x++) {
+    const row = document.createElement("div");
+        row.className = `row mx-auto w-75`;
+    for(var y = 0; y < 8; y++) {
+        const col = document.createElement("div");
+        col.className = `tile ${color()}`;
+        row.appendChild(col);
+    }
+    color();
 
+    cont.appendChild(row);
+}
 
-
-
-
-const texture = await Assets.load('Images/Script.png');
-
-const script = new Sprite(texture);
-
-
-
-
-
-// Asynchronous IIFE
-(async () =>
-{
-    // Create a PixiJS application.
-    const app = new Application();
-
-    // Intialize the application.
-    await app.init({ background: '#ff0000', resizeTo: window });
-    app.stage.addChild(script);
-    script.anchor.set(0.5)
-
-    script.x = app.screen.width / 2
-    script.y = app.screen.height / 2
-    // Then adding the application's canvas to the DOM body.
-    document.body.appendChild(app.canvas);
-})();
+function color() {
+    colr = !(colr);
+    if(colr) {
+        return `bg-danger`;
+    } else {
+        return `bg-dark`;
+    }
+}
