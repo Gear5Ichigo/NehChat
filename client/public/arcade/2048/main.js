@@ -26,11 +26,13 @@ class Block {
 
     chkMerge(block) {
         if(this.tile == block.tile) {
+            //console.log("The same");
             let tmp = this.tile + block.tile;
             this.tile = tmp;
             block.tile = 0;
 			return tmp;
         }
+        return 0;
 		
     }
 
@@ -57,17 +59,16 @@ class Game {
         this.Reset();
         this.tiles = 0;
         this.ismoved = false;
+
     }
 
     start() {
-		
         this.addTile();
         this.addTile();
         this.draw();
     }
 
     Reset() {
-        console.log("Hello");
         this.score = 0;
 		this.boardWipe();
         this.start();
@@ -83,6 +84,10 @@ class Game {
             }
         }
         this.tiles = count;
+
+        if(this.tiles == 16) {
+            this.chkLoss();
+        }
     }
     boardWipe() {
         for(var x = 0; x < this.blocks.length; x++) {
@@ -102,8 +107,24 @@ class Game {
         }
         if(count > 0) {
             this.blocks[rngCoords[0]][rngCoords[1]].tile = 2;
+        } else {
+            
         }
         
+    }
+
+
+    chkLoss() {
+        let lis = [this.chkMerge(0),this.chkMerge(1),this.chkMerge(2),this.chkMerge(3)];
+        let canMerge = false;
+        for(var x = 0; x < lis.length; x++) {
+            if(lis[x]) {
+                canMerge = true;
+            }
+        }
+        if(canMerge==false) {
+            alert("Lost Game");
+        }
     }
 
     printHTML() {
@@ -152,23 +173,55 @@ class Game {
         let block = this.blocks[opprow][oppcol];
         if(row < this.blocks.length && block.tile > 0) {
             this.pushTileBack(opprow,oppcol,2);
+            
         }
+    }
+
+    chkMerge(dir, ismerging) {
+        let merged = false;
+        for(var x = 0; x < this.blocks.length; x++) {
+            for(var y = 0; y < this.blocks.length; y++) {
+                let block = this.blocks[x][y];
+                let r = this.chngRow(x,dir);
+                let c = this.chngCol(y,dir);
+                if(block.tile != 0 && ((r >= 0 && r < this.blocks.length) && (c >= 0 && c < this.blocks.length))) {
+                    if(ismerging) {
+                        let tmp = block.chkMerge(this.blocks[r][c]);
+                        if(tmp > 0) {
+                            this.ismoved = true;
+                            this.score += tmp;
+                        }
+                    } else {
+                        if(block.tile == this.blocks[r][c].tile) {
+                            merged = true
+                        }
+                    }
+                    
+                }
+            }
+        }
+        return merged;
     }
     getReverseTile(num) {
         let tmp = (this.blocks.length-1)-num;
         return tmp;
     }
 
-
-    shiftTiles(dir) {
-        this.ismoved = false;
+    moveTiles(dir) {
         for(var row = 0; row < this.blocks.length; row++) {
             for(var col = 0; col < this.blocks[row].length; col++) {
                 let block = this.blocks[row][col];
                 this.dirShift(dir,row,col);
             }
         }
-        
+    }
+
+    shiftTiles(dir) {
+        this.ismoved = false;
+        this.moveTiles(dir);
+        this.chkMerge(dir, true);
+        this.moveTiles(dir);
+
         if(this.ismoved) {
             this.addTile();
         }
@@ -207,9 +260,6 @@ class Game {
                 this.draw();
                 this.ismoved = true;
                 
-            } else if(this.blocks[chngrow][chngcol].tile == block.tile) {
-                this.score += block.chkMerge(this.blocks[chngrow][chngcol]);
-                this.ismoved = true;
             } else {
                 break;
             }
