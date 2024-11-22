@@ -4,11 +4,11 @@ import io from 'socket.io-client'
 import { Form, Image } from "react-bootstrap";
 import "../css/allchat.css"
 
-import AlertModal from "../Components/allchat/AlertModal"
-import ReactionsPopover from "../Components/allchat/ReactionsPopover"
-import UserActionsList from "../Components/allchat/UserActionsList"
-import SideMenu from "../Components/allchat/SideMenu";
-import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
+import AlertModal from "../components/allchat/AlertModal"
+import ReactionsPopover from "../components/allchat/ReactionsPopover"
+import UserActionsList from "../components/allchat/UserActionsList"
+import SideMenu from "../components/allchat/SideMenu";
+import AllUsersInRoom from "../components/allchat/AllUsersInRoom";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],

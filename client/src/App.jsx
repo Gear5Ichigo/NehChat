@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
-import { SignUp } from './Pages/signup'
-import { Home } from './Pages/home'
-import { Dashboard } from './Pages/dashbaord'
-import { AllChat } from './Pages/allchat'
-import { Settings } from './Pages/settings'
+import { SignUp } from './pages/signup'
+import { Home } from './pages/home'
+import { Dashboard } from './pages/dashbaord'
+import { AllChat } from './pages/allchat'
+import { Settings } from './pages/settings'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);

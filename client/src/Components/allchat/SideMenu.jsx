@@ -8,7 +8,7 @@ export default function SideMenu() {
                 <Accordion as={ListGroup.Item} style={{margin: 0, padding: 0}}>
                     <Accordion.Header> Arcade 🕹 </Accordion.Header>
                     <Accordion.Body className="bg-info fw-bold" as={ListGroup.Item} action href="/arcade/2048/index.html"> 2048 </Accordion.Body>
-                    <Accordion.Body className="bg-info fw-bold" as={ListGroup.Item} action href="/arcade/midnight-motorist/index.html"> Midnight Motorist </Accordion.Body>
+                    <Accordion.Body className="bg-info fw-bold" as={ListGroup.Item} action href="/src/arcade/midnight-motorist/index.html"> Midnight Motorist </Accordion.Body>
                     <Accordion.Body className="bg-info fw-bold" as={ListGroup.Item} action > Pizza </Accordion.Body>
                 </Accordion>
                 <ListGroupItem action onClick={()=>{window.location.href ="/settings"}}> Settings </ListGroupItem>
