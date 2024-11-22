@@ -13,7 +13,7 @@ router.get("/get_user", (req, res) => {
 })
 
 router.post("/login", passport.authenticate('local', {
-    successRedirect: '/dashboard',
+    successRedirect: '/allchat',
     failureRedirect: '/?login_fail=true'
 }));
 

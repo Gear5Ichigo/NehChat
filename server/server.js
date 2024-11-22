@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const { Profanity, CensorType } = require("@2toad/profanity");
 //
 const users = require("./routes/users");
+const games = require("./routes/games");
 //
 const { Server } = require("socket.io");
 const { join } = require("node:path")
@@ -84,7 +85,8 @@ passport.deserializeUser( (user, cb) => {
 //
 
 // routes **always go after app.use
-app.use("/api/users", users)
+app.use("/api/users", users);
+app.use("/api/games", games);
 //
 
 //
