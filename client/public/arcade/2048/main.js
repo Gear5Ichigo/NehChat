@@ -74,6 +74,7 @@ class Game {
         this.score = 0;
 		this.boardWipe();
         this.start();
+        this.getScoreBoard(false);
     }
     cntTiles() {
         let count = 0;
@@ -125,28 +126,7 @@ class Game {
             }
         }
         if(canMerge==false) {
-            (async () => {
-                await fetch('/api/games/2048_score_submit', {
-                    method: "POST",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({score: this.score})
-                })
-                .then( res => res.json() )
-                .then( data => {
-                    const scoreboard = document.querySelector("ul.scoreboard");
-                    for (const key in data.scores) {
-                        console.log(key, data.scores[key])
-                        const newlisting = document.createElement("li");
-                        newlisting.className = "text-light font-bold"
-                        newlisting.innerText = `${key}: ${data.scores[key]}`
-                        scoreboard.appendChild(newlisting)
-                    }
-                });
-            })();
-            alert(`${user.username} why did you lose...`);
+            this.getScoreBoard(true);
         }
     }
 
@@ -328,6 +308,38 @@ class Game {
         document.querySelector(".score").innerHTML = `Score: ${this.score}`;
 	}
 
+
+    getScoreBoard(didlose) {
+        document.querySelector(".scoreboard").innerHTML = ``;
+        (async () => {
+            await fetch('/api/games/2048_score_submit', {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({score: this.score})
+            })
+            .then( res => res.json() )
+            .then( data => {
+                const scoreboard = document.querySelector("ul.scoreboard");
+                for (const key in data.scores) {
+                    console.log(key, data.scores[key])
+                    const newlisting = document.createElement("li");
+                    newlisting.className = "text-light font-bold"
+                    newlisting.innerText = `${key}: ${data.scores[key]}`
+                    scoreboard.appendChild(newlisting)
+                }
+            });
+        })();
+        if(didlose) {
+            alert(`${user.username} why did you lose...`);
+        }
+        
+    }
+
+
+    
 }
 
 let game = new Game()
