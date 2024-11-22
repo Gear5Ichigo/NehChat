@@ -20,7 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "http://localhost:3000",
         credentials: true,
         
     }, allowEIO3: true, maxHttpBufferSize: 8e8
@@ -46,7 +46,7 @@ app
     .use(express.json())
     .use(express.urlencoded({extended: true})) // sets up req.body for forms
     .use(cors({
-        origin: ["http://localhost:5173"],
+        origin: ["http://localhost:3000"],
         credentials: true
     })) // connect to react
     .use(session_options)
