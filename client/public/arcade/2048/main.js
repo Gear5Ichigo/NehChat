@@ -344,7 +344,7 @@ class Game {
             .then( res => res.json() )
             .then( scores => {
                 const scoreboard = document.querySelector("ol.scoreboard");
-                for (let i = 0; i < 5; i++) { const element = scores[i];
+                for (let i = 0; i < 6; i++) { const element = scores[i];
                     const newlisting = document.createElement("li");
                     newlisting.className = "fw-bold ";
                     switch (i) {
@@ -363,8 +363,10 @@ class Game {
                     newlisting.innerText = `${element[0]}: ${element[1]}`;
                     scoreboard.appendChild(newlisting);
                 };
+
             });
         })();
+
         if(didlose) {
             alert(`${user.username} why did you lose...`);
         }
