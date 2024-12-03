@@ -1,4 +1,5 @@
 class Block {
+    //hooo
     constructor(row,col) {
         this.tile = 0;
         this.row = row;
