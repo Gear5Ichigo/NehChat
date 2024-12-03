@@ -344,13 +344,25 @@ class Game {
             .then( res => res.json() )
             .then( scores => {
                 const scoreboard = document.querySelector("ol.scoreboard");
-                scores.forEach(element => {
-                    console.log(element)
+                for (let i = 0; i < 5; i++) { const element = scores[i];
                     const newlisting = document.createElement("li");
-                    newlisting.className = "text-light font-bold"
-                    newlisting.innerText = `${element[0]}: ${element[1]}`
-                    scoreboard.appendChild(newlisting)
-                });
+                    newlisting.className = "fw-bold ";
+                    switch (i) {
+                        case 0:
+                            newlisting.className+="text-info"
+                            break;
+                        case 1:
+                            newlisting.className+="text-warning"
+                            break;
+                        case 2:
+                            newlisting.className+="text-danger"
+                            break;
+                        default:
+                            newlisting.className+="text-light"
+                    }
+                    newlisting.innerText = `${element[0]}: ${element[1]}`;
+                    scoreboard.appendChild(newlisting);
+                };
             });
         })();
         if(didlose) {
