@@ -56,7 +56,7 @@ export function AllChat() {
         socket.on("connect_error", (err) => {
             console.log(`${err}`)
         });
-        socket.connect();
+        socket.connect(); socket.emit('allchat join');
         socket.on('client connect', (user) => {
             setClientUser(user);
         })
