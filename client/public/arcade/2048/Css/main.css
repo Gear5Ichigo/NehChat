@@ -62,3 +62,13 @@ body {
 	text-align: center;
 	color:white;
 }
+
+.myBtn {
+    background-color: maroon;
+    padding:10px;
+    font-size: large;
+    font-weight: bold;
+    color: white;
+    border-radius: 10px;
+    border: 2px solid gray
+}

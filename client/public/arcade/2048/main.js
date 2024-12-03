@@ -1,6 +1,7 @@
 class Block {
     //hooo
     constructor(row,col) {
+        this.merged = false;
         this.tile = 0;
         this.row = row;
         this.col = col;
@@ -28,11 +29,12 @@ class Block {
 
     chkMerge(block) {
         //checks if block given can be merged with this
-        if(this.tile == block.tile) {
+        if(this.tile == block.tile && (this.merged == false && block.merged == false)) {
             //console.log("The same");
             let tmp = this.tile + block.tile;
             this.tile = tmp;
             block.tile = 0;
+            this.merged = true;
 			return tmp;
         }
         return 0;
@@ -114,6 +116,12 @@ class Game {
 
     addTile() {
         //adds a tile in a random spot based on if this.tiles is less than 16
+        let randomSquare = Math.floor(Math.random()*100);
+        if(randomSquare > 90) {
+            randomSquare = 4;
+        } else {
+            randomSquare = 2;
+        }
         let rngCoords = [Math.floor(Math.random()*4), Math.floor(Math.random()*4)];
         while(this.blocks[rngCoords[0]][rngCoords[1]].tile != 0 && this.tiles < 16) {
             rngCoords = [Math.floor(Math.random()*4), Math.floor(Math.random()*4)];
@@ -121,7 +129,7 @@ class Game {
         }
         //checking if tiles less than 16 to make sure no tile is overridden
         if(this.tiles < 16) {
-            this.blocks[rngCoords[0]][rngCoords[1]].tile = 2;
+            this.blocks[rngCoords[0]][rngCoords[1]].tile = randomSquare;
         } 
         
     }
@@ -166,11 +174,12 @@ class Game {
 
     shiftTiles(dir) {
         //runs move merge move to get best result
+        this.safeToMerge();
         this.ismoved = false;
         this.moveTiles(dir);
         this.chkMerge(dir, true);
         this.moveTiles(dir);
-
+        this.cntTiles();
         //checks if moved can add tile
         if(this.ismoved) {
             this.addTile();
@@ -196,79 +205,124 @@ class Game {
         let merged = false;
         for(var x = 0; x < this.blocks.length; x++) {
             for(var y = 0; y < this.blocks.length; y++) {
-                let block = this.blocks[x][y];
-                let r = this.chngRow(x,dir);
-                let c = this.chngCol(y,dir);
-                if(block.tile != 0 && ((r >= 0 && r < this.blocks.length) && (c >= 0 && c < this.blocks.length))) {
-                    if(ismerging) {
-                        let tmp = block.chkMerge(this.blocks[r][c]);
-                        if(tmp > 0) {
-                            this.ismoved = true;
-                            this.score += tmp;
-                        }
-                    } else {
-                        if(block.tile == this.blocks[r][c].tile) {
-                            merged = true
-                        }
-                    }
-                    
-                }
+                
+                merged = this.mergeDir(x,y,dir,true);
+                
             }
         }
-        return merged;
+    }
+
+    mergeDir(row,col,dir,ismerging) {
+        let r;
+        let c;
+        switch(dir) {
+            case 0:
+                r = row;
+                c = col;
+                break;
+            case 1:
+                r = this.getReverseTile(col);
+                c = this.getReverseTile(row);
+                break;
+            case 2:
+                c = this.getReverseTile(col);
+                r = this.getReverseTile(row);
+                break;
+            case 3:
+                r = col;
+                c = row;
+                break;
+        }
+
+        return this.merge(r,c,dir,ismerging);
+    }
+    merge(row,col,dir,ismerging) {
+        let block = this.blocks[row][col];
+        let r = this.chngRow(row,dir);
+        let c = this.chngCol(col,dir);
+        let merged = false;
+        if(block.tile != 0 && ((r >= 0 && r < this.blocks.length) && (c >= 0 && c < this.blocks.length))) {
+            if(ismerging) {
+                let tmp = block.chkMerge(this.blocks[r][c]);
+                if(tmp > 0) {
+                    this.ismoved = true;
+                    this.score += tmp;
+                }
+            } else {
+                if(block.tile == this.blocks[r][c].tile) {
+                    merged = true
+                    return merged;
+                }
+            }
+            
+        }
+
+        
+    }
+
+    safeToMerge() {
+        for(var x = 0; x < this.blocks.length; x++) {
+            for(var y = 0; y < this.blocks.length; y++) {
+                this.blocks[x][y].merged = false;
+            }
+        }
     }
 
     dirShift(dir,row,col) {
         //determins which direction to push to
+        let block;
+        let oppcol;
+        let opprow;
         switch(dir) {
             case 0:
-                this.pushUp(col,row);
+                block = this.blocks[row][col];
+                if(row > 0 && block.tile > 0) {
+                    this.pushTileBack(row,col,0);
+                }
                 break;
             case 1:
-                this.pushRight(col,row);
+                 opprow = this.getReverseTile(row);
+                 oppcol = this.getReverseTile(col);
+                 block = this.blocks[oppcol][opprow];
+                if(row < this.blocks.length && block.tile > 0) {
+                    this.pushTileBack(oppcol,opprow,1);
+                }
                 break
             case 2:
-                this.pushDown(col,row);
+                 opprow = this.getReverseTile(row);
+                 oppcol = this.getReverseTile(col);
+                 block = this.blocks[opprow][oppcol];
+                if(row < this.blocks.length && block.tile > 0) {
+                    this.pushTileBack(opprow,oppcol,2);
+                    
+                }
                 break;
             case 3:
-                this.pushLeft(col,row);
+                block = this.blocks[col][row];
+                if(row > 0 && block.tile > 0) {
+                    this.pushTileBack(col,row,3);
+                }
                 break;
         }
     }
 
-    pushLeft(col,row) {
-        //pushes tiles left
-        let block = this.blocks[col][row];
-        if(row > 0 && block.tile > 0) {
-            this.pushTileBack(col,row,3);
+    rowSwitch(row,dir) {
+        if(dir == 1 || dir == 2) {
+            row = this.getReverseTile(row);
+
+            return row;
         }
+        return row;
     }
-    pushRight(row,col) {
-        //pushes tiles right
-        let opprow = this.getReverseTile(row);
-        let oppcol = this.getReverseTile(col);
-        let block = this.blocks[oppcol][opprow];
-        if(row < this.blocks.length && block.tile > 0) {
-            this.pushTileBack(oppcol,opprow,1);
+
+    colSwitch(col,dir) {
+        if(dir == 1 || dir == 2) {
+            col = this.getReverseTile(col);
+            return col;
         }
+        return col;
     }
-    pushUp(row,col) {
-        //pushes tiles up
-        let block = this.blocks[row][col];
-        if(row > 0 && block.tile > 0) {
-            this.pushTileBack(row,col,0);
-        }
-    }
-    pushDown(row,col) {
-        //pushes tiles down
-        let opprow = this.getReverseTile(row);
-        let oppcol = this.getReverseTile(col);
-        let block = this.blocks[opprow][oppcol];
-        if(row < this.blocks.length && block.tile > 0) {
-            this.pushTileBack(opprow,oppcol,2);
-            
-        }
-    }
+
 
     pushTileBack(row,col,dir) {
         //starts at tile and loops until tile can no longer move
