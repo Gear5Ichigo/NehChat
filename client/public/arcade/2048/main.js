@@ -321,15 +321,15 @@ class Game {
                 body: JSON.stringify({score: this.score})
             })
             .then( res => res.json() )
-            .then( data => {
-                const scoreboard = document.querySelector("ul.scoreboard");
-                for (const key in data.scores) {
-                    console.log(key, data.scores[key])
+            .then( scores => {
+                const scoreboard = document.querySelector("ol.scoreboard");
+                scores.forEach(element => {
+                    console.log(element)
                     const newlisting = document.createElement("li");
                     newlisting.className = "text-light font-bold"
-                    newlisting.innerText = `${key}: ${data.scores[key]}`
+                    newlisting.innerText = `${element[0]}: ${element[1]}`
                     scoreboard.appendChild(newlisting)
-                }
+                });
             });
         })();
         if(didlose) {
