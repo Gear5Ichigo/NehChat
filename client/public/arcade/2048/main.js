@@ -137,15 +137,18 @@ class Game {
 
     chkLoss() {
         //checks loss by if chkMerge returns true in any direction
-        let lis = [this.chkMerge(0),this.chkMerge(1),this.chkMerge(2),this.chkMerge(3)];
+        let lis = [this.chkMerge(0,false),this.chkMerge(1,false),this.chkMerge(2,false),this.chkMerge(3,false)];
         let canMerge = false;
         for(var x = 0; x < lis.length; x++) {
+            //console.log(lis[x]);
             if(lis[x]) {
                 canMerge = true;
             }
         }
         //if canMerge is false you lose
+        this.draw();
         if(canMerge==false) {
+            
             this.getScoreBoard(true);
         }
     }
@@ -205,36 +208,45 @@ class Game {
         let merged = false;
         for(var x = 0; x < this.blocks.length; x++) {
             for(var y = 0; y < this.blocks.length; y++) {
-                
-                merged = this.mergeDir(x,y,dir,true);
+                let m = this.mergeDir(x,y,dir,ismerging);
+                if(m) {
+                    merged = true;
+                }
                 
             }
         }
+        return merged;
     }
 
     mergeDir(row,col,dir,ismerging) {
         let r;
         let c;
+        let merge;
         switch(dir) {
             case 0:
                 r = row;
                 c = col;
+                merge = this.merge(r,c,dir,ismerging);
                 break;
             case 1:
                 r = this.getReverseTile(col);
                 c = this.getReverseTile(row);
+                merge = this.merge(r,c,dir,ismerging);
                 break;
+
             case 2:
                 c = this.getReverseTile(col);
                 r = this.getReverseTile(row);
+                merge = this.merge(r,c,dir,ismerging);
                 break;
             case 3:
                 r = col;
                 c = row;
+                merge = this.merge(r,c,dir,ismerging);
                 break;
         }
-
-        return this.merge(r,c,dir,ismerging);
+        //console.log(merge);
+        return merge;
     }
     merge(row,col,dir,ismerging) {
         let block = this.blocks[row][col];
@@ -248,16 +260,14 @@ class Game {
                     this.ismoved = true;
                     this.score += tmp;
                 }
-            } else {
-                if(block.tile == this.blocks[r][c].tile) {
-                    merged = true
-                    return merged;
-                }
+            }
+            if(block.tile == this.blocks[r][c].tile) {
+                merged = true;
             }
             
         }
-
-        
+        console.log(merged);
+        return merged;
     }
 
     safeToMerge() {
