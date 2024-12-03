@@ -70,6 +70,7 @@ class Game {
         //adds two tiles to board
         this.addTile();
         this.addTile();
+        this.getScoreBoard(false);
         this.draw(); //draws all the html to display properly
     }
 
@@ -137,7 +138,7 @@ class Game {
         }
         //if canMerge is false you lose
         if(canMerge==false) {
-            alert("lost game");
+            this.getScoreBoard(true);
         }
     }
 
