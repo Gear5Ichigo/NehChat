@@ -40,13 +40,13 @@ class Block {
 }
 
 
-let user = null;
+/*let user = null;
 const _get_user = async () => {
     await fetch('/api/users/get_user')
     .then(res => res.json())
     .then(data => user = data.user);
 }; _get_user();
-
+*/
 class Game {
     constructor() {
         this.blocks = [
@@ -74,7 +74,7 @@ class Game {
         this.score = 0;
 		this.boardWipe();
         this.start();
-        this.getScoreBoard(false);
+        //this.getScoreBoard(false);
     }
     cntTiles() {
         let count = 0;
@@ -126,7 +126,7 @@ class Game {
             }
         }
         if(canMerge==false) {
-            this.getScoreBoard(true);
+            alert("lost game");
         }
     }
 
@@ -309,7 +309,7 @@ class Game {
 	}
 
 
-    getScoreBoard(didlose) {
+    /*getScoreBoard(didlose) {
         document.querySelector(".scoreboard").innerHTML = ``;
         (async () => {
             await fetch('/api/games/2048_score_submit', {
@@ -336,7 +336,7 @@ class Game {
             alert(`${user.username} why did you lose...`);
         }
         
-    }
+    }*/
 
 
     
@@ -359,16 +359,16 @@ document.addEventListener('load', () => {
 })
 
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 87) {
+    if(event.keyCode == 87 ||  event.keyCode == 38) {
         game.shiftTiles(0);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 65) {
+    } else if(event.keyCode == 65 ||  event.keyCode == 37) {
         game.shiftTiles(3);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 68) {
+    } else if(event.keyCode == 68 ||  event.keyCode == 39) {    
         game.shiftTiles(1);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 83) {
+    } else if(event.keyCode == 83  ||  event.keyCode == 40) {
         game.shiftTiles(2);
        // console.log(event.keyCode);
     }
