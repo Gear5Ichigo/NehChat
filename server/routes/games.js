@@ -7,30 +7,36 @@ const highscores = database.collection('Highscores')
 
 router.post('/2048_score_submit', async (req, res) => {
     if (!req.user) return;
-    let score_list = await highscores.findOne({game: "2048"});
-    if (score_list) {
-        const newscore = score_list.scores[req.user.username] > req.body.score ? score_list.scores[req.user.username] : req.body.score
-        score_list.scores[req.user.username] = newscore
-        highscores.updateOne({game: "2048"}, { $set : { [`scores.${req.user.username}`] : newscore } }, {upsert: true})
 
-        let mappedscores = [];
-        for (const key in score_list.scores) {
-            mappedscores.push( [key, score_list.scores[key]] );
-        }
-        mappedscores.sort( (a, b) => b[1] - a[1] );
+    const userscore = await highscores.findOne({username: req.user.username, game:"2048"});
 
-        res.send(mappedscores);
+    const previousscore = userscore ? userscore.score : 0
+    const newscore = req.body.score > previousscore ? req.body.score : previousscore
+
+    console.log(userscore)
+
+    if (userscore) {
+        await highscores.updateOne( {username: req.user.username, game: "2048"} , {$set:{score: newscore}}, {upsert: true})
     } else {
-        const updated_score = JSON.parse(`{"${req.user.username}": ${req.body.score}}`)
         await highscores.insertOne({
+            username: req.user.username,
             game: "2048",
-            scores: updated_score
+            score: newscore,
         })
-        res.send(updated_score)
     }
+
+    const scorearray = await highscores.find({game:"2048"}).toArray();
+    let allscores = []
+    for (const index in scorearray) {
+        const element = scorearray[index];
+        allscores.push([element.username, element.score]);
+    }
+    allscores.sort((a, b) => { return b[1] - a[1] });
+
+    res.send(allscores)
 })
 
-router.post('midnight_motorist_score_submit', async (req, res) => {
+router.post('/midnight_motorist_score_submit', async (req, res) => {
 
 });
 
