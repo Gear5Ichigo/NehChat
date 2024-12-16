@@ -17,9 +17,17 @@
     </script>
 </head>
 <body>
-    <h1 class="title">2048</h1>
 
+    <form method="post" action="/api/users/logout">
+        <input type="submit" value="Log Out" class="btn btn-danger"/>
+    </form>
+    <a href="/allchat" class="btn btn-primary"> Back to All Chat </a>
 
+    <div>
+        <h1 class="title">2048</h1>
+        <h1 class="title" style="display: none;">GameOver</h1>
+    </div>
+    
     
     <div class="container text-center">
         <div class="row py-3"> 
@@ -97,7 +105,7 @@
             
 
             <div class="mx-auto">
-                <h3 class="text-light"> Top 6 High Scores </h3>
+                <h3 class="text-light"> Top High Scores </h3>
                 <ol class="scoreboard"></ol>
             </div>
 

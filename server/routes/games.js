@@ -14,9 +14,12 @@ router.post('/2048_score_submit', async (req, res) => {
     const newscore = req.body.score > previousscore ? req.body.score : previousscore
 
     console.log(userscore)
+    console.log(`post request score: ${req.body.score}`)
+    console.log(`new socre: ${newscore}`)
+    console.log(`prev score: ${previousscore}`)
 
     if (userscore) {
-        await highscores.updateOne( {username: req.user.username, game: "2048"} , {$set:{score: newscore}}, {upsert: true})
+        const abc = await highscores.updateOne( {username: req.user.username, game: "2048"} , {$set:{score: newscore}}, {upsert: true})
     } else {
         await highscores.insertOne({
             username: req.user.username,

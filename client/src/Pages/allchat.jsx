@@ -263,8 +263,8 @@ export function AllChat() {
                                 setFileUpload(event.target.files[0])
                                 setFileField(event.target.value)
                             }} value={fileField} />
-                            <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } />
-                            <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" />
+                            <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } placeholder="Message here..." className="bg-secondary-subtle" />
+                            <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" className="btn btn-primary"/>
                         </Form>
                     </div>                    
 

@@ -72,15 +72,16 @@ class Game {
         //adds two tiles to board
         this.addTile();
         this.addTile();
-        this.getScoreBoard(false);
+        this.getScoreBoard(false)
         this.draw(); //draws all the html to display properly
     }
 
     Reset() {
         //resets board for new game
-        this.score = 0;//sets score to 0
-		this.boardWipe(); //wipes board
+        this.boardWipe(); //wipes board
         this.start();
+        this.score = 0;//sets score to 0
+        this.drawScore();
     }
     cntTiles() {
         //counts all tiles more than 0 and sets it to this.tiles
@@ -266,7 +267,7 @@ class Game {
             }
             
         }
-        console.log(merged);
+        //console.log(merged);
         return merged;
     }
 
@@ -395,7 +396,7 @@ class Game {
 
 
     getScoreBoard(didlose) {
-        document.querySelector(".scoreboard").innerHTML = ``;
+        
         (async () => {
             await fetch('/api/games/2048_score_submit', {
                 method: "POST",
@@ -408,7 +409,8 @@ class Game {
             .then( res => res.json() )
             .then( scores => {
                 const scoreboard = document.querySelector("ol.scoreboard");
-                for (let i = 0; i < 6; i++) { const element = scores[i];
+                scoreboard.innerHTML = ``;
+                for (let i = 0; i < scores.length; i++) { const element = scores[i];
                     const newlisting = document.createElement("li");
                     newlisting.className = "fw-bold ";
                     switch (i) {
@@ -430,10 +432,6 @@ class Game {
 
             });
         })();
-
-        if(didlose) {
-            alert(`${user.username} why did you lose...`);
-        }
         
     }
 
@@ -444,11 +442,10 @@ class Game {
 let game = new Game()
 
 game.draw();
-
-    
 let res = document.getElementById("reset");
     res.addEventListener("click", function() {
         game.Reset();
+        
 });
 
 
@@ -458,16 +455,16 @@ document.addEventListener('load', () => {
 })
 
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 87 ||  event.keyCode == 38) {
+    if(event.keyCode == 87 /*||  event.keyCode == 38*/) {
         game.shiftTiles(0);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 65 ||  event.keyCode == 37) {
+    } else if(event.keyCode == 65 /*||  event.keyCode == 37*/) {
         game.shiftTiles(3);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 68 ||  event.keyCode == 39) {    
+    } else if(event.keyCode == 68 /*||  event.keyCode == 39*/) {    
         game.shiftTiles(1);
        // console.log(event.keyCode);
-    } else if(event.keyCode == 83  ||  event.keyCode == 40) {
+    } else if(event.keyCode == 83  /*||  event.keyCode == 40*/) {
         game.shiftTiles(2);
        // console.log(event.keyCode);
     }
