@@ -161,7 +161,7 @@ io.on('connection', (socket) => {
                             if (err) console.log(err);
                             console.log("timeout reached, file deleted")
                         })
-                    }, 300*1000) // seconds * 1000 which converts it to ms
+                    }, 240*1000) // seconds * 1000 which converts it to ms
                 }
             });
             upload = {name: data.fileItem.name, type: data.fileItem.type}
@@ -215,8 +215,13 @@ io.on('connection', (socket) => {
         io.emit('update messages', allmessages);
     })
     
-    socket.on('admin mute', () => {
-        
+    socket.on('admin mute', (targetUser) => {
+        const foundMuted = mutedusers.indexOf(targetUser);
+        if (foundMuted <= -1) {
+            mutedusers.push(allusers[allusers.indexOf(targetUser)]);
+        } else {
+
+        }
     })
 
     socket.on('user typing', () => {
@@ -234,6 +239,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log("disconnected");
+        allusers.splice(allusers.indexOf(req.user), 1);
         if (userstyping.includes(req.user)) {
             userstyping.splice(userstyping.indexOf(req.user), 1);
             io.emit('user typing', userstyping);
