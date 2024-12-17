@@ -8,7 +8,7 @@ import AlertModal from "../components/allchat/AlertModal"
 import ReactionsPopover from "../components/allchat/ReactionsPopover"
 import UserActionsList from "../components/allchat/UserActionsList"
 import SideMenu from "../components/allchat/SideMenu";
-import AllUsersInRoom from "../components/allchat/AllUsersInRoom";
+import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -28,6 +28,7 @@ export function AllChat() {
     const [showControlPanel, setShowControlPanel] = useState(false);
     const [panelTarget, setPanelTarget] = useState();
     const [panelCurrentTarget, setPanelCurrentTarget] = useState();
+    const [usersList, setUsersList] = useState([]);
 
     const ref = useRef(null);
     const ref2 = useRef(null);
@@ -62,6 +63,7 @@ export function AllChat() {
         })
         socket.on('user connected', (allmessages, allusers) => {
             setMessages(allmessages);
+            setUsersList(allusers);
         });
         socket.on('redirect', () => {
             window.location.href = "/";
@@ -75,7 +77,7 @@ export function AllChat() {
                     if (all.indexOf(u)==all.length-2) endstr=', and '
                     addition+=u.username+endstr;
                 });
-                setUsersTyping(addition+"typing . . .")
+                setUsersTyping(addition+"is typing . . .")
             } else setUsersTyping("Several people are typing . . .")
             if (all.length > 0) { setShowTyping("block") } else setShowTyping("none");
         })
@@ -289,7 +291,9 @@ export function AllChat() {
                     
                 </div>
 
-                <AllUsersInRoom />
+                <AllUsersInRoom
+                allUsers={usersList}
+                />
 
             </div>
         </>
