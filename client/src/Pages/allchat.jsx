@@ -30,6 +30,7 @@ export function AllChat() {
     const [panelTarget, setPanelTarget] = useState();
     const [panelCurrentTarget, setPanelCurrentTarget] = useState();
     const [usersList, setUsersList] = useState([]);
+    const [isUserMuted, setUserMute] = useState(false);
 
     const ref = useRef(null);
     const ref2 = useRef(null);
@@ -93,18 +94,20 @@ export function AllChat() {
                 messageContainer.scrollTop = messageContainer.scrollHeight
             }, )
         });
+        socket.on('set mute', (getMuted) => {
+           setUserMute(getMuted);
+           console.log("ME ME");
+        })
 
         return () => {
             document.removeEventListener('click', clickOutside)
             //
             socket.off('redirect');
             socket.off('message');
-            socket.off('user typing');
-            socket.off('user not typing');
-            socket.off('user connected');
-            socket.off('user disconnected')
+            socket.off('user typing'); socket.off('user not typing');
+            socket.off('user connected'); socket.off('user disconnected');
             socket.off('client connect');
-            socket.off('admin censor');
+            socket.off('admin censor'); socket.off('set mute')
             socket.disconnect();
         }
     }, []);
@@ -207,15 +210,15 @@ export function AllChat() {
     }
 
     const adminCensorClick = () => {
-        socket.emit('admin censor', panelCurrentTarget.dataset.index); setShowControlPanel(false)
+        socket.emit('admin censor', panelCurrentTarget.dataset.index); setShowControlPanel(false);
     }
 
     const adminMuteClick = () => {
-        socket.emit('admin mute')
+        socket.emit('admin mute', panelCurrentTarget.dataset.user); setShowControlPanel(false);
     }
 
     const userDeleteClick = (index) => {
-        socket.emit("delete message", panelCurrentTarget.dataset.index); setShowControlPanel(false)
+        socket.emit("delete message", panelCurrentTarget.dataset.index); setShowControlPanel(false);
     }
 
     return (clientUser? (
@@ -264,6 +267,7 @@ export function AllChat() {
                     </div>
 
                     <InputLine
+                    isUserMuted={isUserMuted}
                     message={message}
                     fileField={fileField}
                     showTyping={showTyping}
