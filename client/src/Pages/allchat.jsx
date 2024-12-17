@@ -9,6 +9,7 @@ import ReactionsPopover from "../components/allchat/ReactionsPopover"
 import UserActionsList from "../components/allchat/UserActionsList"
 import SideMenu from "../components/allchat/SideMenu";
 import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
+import InputLine from "../Components/allchat/InputLine";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -65,6 +66,9 @@ export function AllChat() {
             setMessages(allmessages);
             setUsersList(allusers);
         });
+        socket.on('user disconnected', (allusers) => {
+            setUsersList(allusers);
+        })
         socket.on('redirect', () => {
             window.location.href = "/";
         })
@@ -98,6 +102,7 @@ export function AllChat() {
             socket.off('user typing');
             socket.off('user not typing');
             socket.off('user connected');
+            socket.off('user disconnected')
             socket.off('client connect');
             socket.off('admin censor');
             socket.disconnect();
@@ -258,17 +263,26 @@ export function AllChat() {
                         </ul>
                     </div>
 
-                    <div className="" >
-                        <div style={ {display:showTyping} } > <b> {usersTyping} </b> </div>
-                        <Form onSubmit={messageSubmit} className="d-flex">
-                            <Form.Control type="file" className="w-25" onChange={ event => {
-                                setFileUpload(event.target.files[0])
-                                setFileField(event.target.value)
-                            }} value={fileField} />
-                            <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } placeholder="Message here..." className="bg-secondary-subtle" />
-                            <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" className="btn btn-primary"/>
-                        </Form>
-                    </div>                    
+                    <InputLine
+                    message={message}
+                    fileField={fileField}
+                    showTyping={showTyping}
+                    usersTyping={usersTyping}
+                    handleTyping={handleTyping}
+                    messageSubmit={messageSubmit}
+                    handleFileUpload={ event => {
+                        setFileUpload(event.target.files[0]);
+                        setFileField(event.target.value);
+                        console.log(event.target.value)
+                    }}
+                    handlePaste={ event => {
+                        if (event.clipboardData.files.length >= 1) {
+                            const file = event.clipboardData.files[0];
+                            const newFile = new File([file], `${file.size}x${file.name}`, {type: file.type});
+                            setFileUpload(newFile);
+                        }
+                    }}
+                    />               
 
                     <ReactionsPopover />
 

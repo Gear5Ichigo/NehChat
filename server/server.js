@@ -240,6 +240,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log("disconnected");
         allusers.splice(allusers.indexOf(req.user), 1);
+        io.emit('user disconnected', allusers);
         if (userstyping.includes(req.user)) {
             userstyping.splice(userstyping.indexOf(req.user), 1);
             io.emit('user typing', userstyping);
