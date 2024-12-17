@@ -124,17 +124,17 @@ io.on('connection', (socket) => {
     console.log(req.session)
     if (req.user) {
         allusers.push(req.user);
-        addMessage({
-            user: {
-                username: "Goku Server (real)",
-                color: '#42f5ef',
-                pfp: '1cb.jpg',
-            },
-            message: `${req.user.username} joined... yippeee!`,
-            dateTime: {
-                month: 0, year: 0, day: 0, hour: 0, minute: 0, second: 0,
-            }
-        })
+        // addMessage({
+        //     user: {
+        //         username: "Goku Server (real)",
+        //         color: '#42f5ef',
+        //         pfp: '1cb.jpg',
+        //     },
+        //     message: `${req.user.username} joined... yippeee!`,
+        //     dateTime: {
+        //         month: 0, year: 0, day: 0, hour: 0, minute: 0, second: 0,
+        //     }
+        // })
         io.emit('user connected', allmessages, allusers)
         console.log(socket.id);
         io.to(socket.id).emit('client connect', req.user);
