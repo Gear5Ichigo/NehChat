@@ -127,8 +127,8 @@ io.on('connection', async (socket) => {
         io.emit('user connected', allmessages, allusers);
         console.log(socket.id);
         io.to(socket.id).emit('client connect', req.user);
-        if (mutedusers.find((u => u.name===req.user.name))) {
-            console.log(mutedusers)
+        if (mutedusers.find((u => u.username===req.user.username))) {
+            console.log('user is muted')
             io.to(socket.id).emit('set mute', true);
         }
     }
@@ -214,10 +214,12 @@ io.on('connection', async (socket) => {
                 return allusers[index];
             }
         });
-        if (mutedusers.indexOf(targetUser)==-1) {
+        if (targetUser==null || mutedusers.indexOf(targetUser[0])==-1) {
+            console.log("THE WRONG PATH", mutedusers)
             mutedusers.push(targetUser[0]);
             io.to(targetUser[1]).emit('set mute', true);
         } else {
+            console.log("OTHER PATH")
             mutedusers.splice(mutedusers.indexOf(targetUser), 1);
             io.to(targetUser[1]).emit('set mute', false);
         }
