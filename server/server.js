@@ -102,10 +102,10 @@ app.get("/api/authenticate", (req, res, next) => {
     }
 })
 //
-let userstyping = []
-let mutedusers = []
-let allusers = []
-let allmessages = []
+let userstyping = [];
+let mutedusers = [];
+let allusers = [];
+let allmessages = [];
 function addMessage(msg) {
     if (allmessages.length >= (2**8) ) allmessages.splice(0, 1);
     allmessages.push(msg)
@@ -113,7 +113,7 @@ function addMessage(msg) {
 io.engine.on("connection_error", (err) => {
     console.log(err)
 })
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
 
     const req = socket.request
 
@@ -123,21 +123,14 @@ io.on('connection', (socket) => {
 
     console.log(req.session)
     if (req.user) {
-        allusers.push(req.user);
-        addMessage({
-            user: {
-                username: "Goku Server (real)",
-                color: '#42f5ef',
-                pfp: '1cb.jpg',
-            },
-            message: `${req.user.username} joined... yippeee!`,
-            dateTime: {
-                month: 0, year: 0, day: 0, hour: 0, minute: 0, second: 0,
-            }
-        })
-        io.emit('user connected', allmessages, allusers)
+        allusers.push([req.user, socket.id]);
+        io.emit('user connected', allmessages, allusers);
         console.log(socket.id);
         io.to(socket.id).emit('client connect', req.user);
+        if (mutedusers.find((u => u.username===req.user.username))) {
+            console.log('user is muted')
+            io.to(socket.id).emit('set mute', true);
+        }
     }
 
     socket.on('message', data => {
@@ -161,7 +154,7 @@ io.on('connection', (socket) => {
                             if (err) console.log(err);
                             console.log("timeout reached, file deleted")
                         })
-                    }, 300*1000) // seconds * 1000 which converts it to ms
+                    }, 240*1000) // seconds * 1000 which converts it to ms
                 }
             });
             upload = {name: data.fileItem.name, type: data.fileItem.type}
@@ -215,8 +208,21 @@ io.on('connection', (socket) => {
         io.emit('update messages', allmessages);
     })
     
-    socket.on('admin mute', () => {
-        
+    socket.on('admin mute', (username) => {
+        const targetUser = allusers.find((item, index) => {
+            if (item[0].username===username) {
+                return allusers[index];
+            }
+        });
+        if (targetUser==null || mutedusers.indexOf(targetUser[0])==-1) {
+            console.log("THE WRONG PATH", mutedusers)
+            mutedusers.push(targetUser[0]);
+            io.to(targetUser[1]).emit('set mute', true);
+        } else {
+            console.log("OTHER PATH")
+            mutedusers.splice(mutedusers.indexOf(targetUser), 1);
+            io.to(targetUser[1]).emit('set mute', false);
+        }
     })
 
     socket.on('user typing', () => {
@@ -234,6 +240,8 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log("disconnected");
+        allusers.splice(allusers.indexOf(req.user), 1);
+        io.emit('user disconnected', allusers);
         if (userstyping.includes(req.user)) {
             userstyping.splice(userstyping.indexOf(req.user), 1);
             io.emit('user typing', userstyping);
@@ -242,6 +250,13 @@ io.on('connection', (socket) => {
     })
 
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.log(reason);
+})
+process.on('uncaughtException', (error) => {
+    console.log(error);
+})
 
 server.listen(8000, () => {
     console.log("listening 8000");

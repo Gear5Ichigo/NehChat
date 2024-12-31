@@ -8,7 +8,8 @@ import AlertModal from "../components/allchat/AlertModal"
 import ReactionsPopover from "../components/allchat/ReactionsPopover"
 import UserActionsList from "../components/allchat/UserActionsList"
 import SideMenu from "../components/allchat/SideMenu";
-import AllUsersInRoom from "../components/allchat/AllUsersInRoom";
+import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
+import InputLine from "../Components/allchat/InputLine";
 
 const socket = io('http://:8000', {
     transports: ['websocket'],
@@ -28,6 +29,8 @@ export function AllChat() {
     const [showControlPanel, setShowControlPanel] = useState(false);
     const [panelTarget, setPanelTarget] = useState();
     const [panelCurrentTarget, setPanelCurrentTarget] = useState();
+    const [usersList, setUsersList] = useState([]);
+    const [isUserMuted, setUserMute] = useState(false);
 
     const ref = useRef(null);
     const ref2 = useRef(null);
@@ -62,7 +65,11 @@ export function AllChat() {
         })
         socket.on('user connected', (allmessages, allusers) => {
             setMessages(allmessages);
+            setUsersList(allusers);
         });
+        socket.on('user disconnected', (allusers) => {
+            setUsersList(allusers);
+        })
         socket.on('redirect', () => {
             window.location.href = "/";
         })
@@ -75,7 +82,7 @@ export function AllChat() {
                     if (all.indexOf(u)==all.length-2) endstr=', and '
                     addition+=u.username+endstr;
                 });
-                setUsersTyping(addition+"typing . . .")
+                setUsersTyping(addition+"is typing . . .")
             } else setUsersTyping("Several people are typing . . .")
             if (all.length > 0) { setShowTyping("block") } else setShowTyping("none");
         })
@@ -87,17 +94,20 @@ export function AllChat() {
                 messageContainer.scrollTop = messageContainer.scrollHeight
             }, )
         });
+        socket.on('set mute', (getMuted) => {
+           setUserMute(getMuted);
+           console.log("ME ME");
+        })
 
         return () => {
             document.removeEventListener('click', clickOutside)
             //
             socket.off('redirect');
             socket.off('message');
-            socket.off('user typing');
-            socket.off('user not typing');
-            socket.off('user connected');
+            socket.off('user typing'); socket.off('user not typing');
+            socket.off('user connected'); socket.off('user disconnected');
             socket.off('client connect');
-            socket.off('admin censor');
+            socket.off('admin censor'); socket.off('set mute')
             socket.disconnect();
         }
     }, []);
@@ -200,15 +210,15 @@ export function AllChat() {
     }
 
     const adminCensorClick = () => {
-        socket.emit('admin censor', panelCurrentTarget.dataset.index); setShowControlPanel(false)
+        socket.emit('admin censor', panelCurrentTarget.dataset.index); setShowControlPanel(false);
     }
 
     const adminMuteClick = () => {
-        socket.emit('admin mute')
+        socket.emit('admin mute', panelCurrentTarget.dataset.user); setShowControlPanel(false);
     }
 
     const userDeleteClick = (index) => {
-        socket.emit("delete message", panelCurrentTarget.dataset.index); setShowControlPanel(false)
+        socket.emit("delete message", panelCurrentTarget.dataset.index); setShowControlPanel(false);
     }
 
     return (clientUser? (
@@ -256,17 +266,27 @@ export function AllChat() {
                         </ul>
                     </div>
 
-                    <div className="" >
-                        <div style={ {display:showTyping} } > <b> {usersTyping} </b> </div>
-                        <Form onSubmit={messageSubmit} className="d-flex">
-                            <Form.Control type="file" className="w-25" onChange={ event => {
-                                setFileUpload(event.target.files[0])
-                                setFileField(event.target.value)
-                            }} value={fileField} />
-                            <Form.Control type="text" maxLength={200} value={message} onChange={ handleTyping } />
-                            <Form.Control type="submit" style={ {width: "15.25%", fontSize: "1em"} } value="Submit" />
-                        </Form>
-                    </div>                    
+                    <InputLine
+                    isUserMuted={isUserMuted}
+                    message={message}
+                    fileField={fileField}
+                    showTyping={showTyping}
+                    usersTyping={usersTyping}
+                    handleTyping={handleTyping}
+                    messageSubmit={messageSubmit}
+                    handleFileUpload={ event => {
+                        setFileUpload(event.target.files[0]);
+                        setFileField(event.target.value);
+                        console.log(event.target.value)
+                    }}
+                    handlePaste={ event => {
+                        if (event.clipboardData.files.length >= 1) {
+                            const file = event.clipboardData.files[0];
+                            const newFile = new File([file], `${file.size}x${file.name}`, {type: file.type});
+                            setFileUpload(newFile);
+                        }
+                    }}
+                    />               
 
                     <ReactionsPopover />
 
@@ -289,7 +309,9 @@ export function AllChat() {
                     
                 </div>
 
-                <AllUsersInRoom />
+                <AllUsersInRoom
+                allUsers={usersList}
+                />
 
             </div>
         </>
