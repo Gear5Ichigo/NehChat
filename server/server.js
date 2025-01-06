@@ -128,7 +128,6 @@ io.on('connection', async (socket) => {
         console.log(socket.id);
         io.to(socket.id).emit('client connect', req.user);
         if (mutedusers.find((u => u.username===req.user.username))) {
-            console.log('user is muted')
             io.to(socket.id).emit('set mute', true);
         }
     }
@@ -163,8 +162,11 @@ io.on('connection', async (socket) => {
         const atSymbol = data.message.indexOf('@')
         let targetuser = {username: "?"}
         if (atSymbol!=-1) {
+            allusers.find((item) => {
+                console.log(item[0].username)
+            })
             const endOfName = data.message.indexOf(' ', atSymbol) != -1 ? data.message.indexOf(' ', atSymbol) : data.message.length;
-            const isUser = allusers.find(user => user.username == data.message.substring(atSymbol+1, endOfName));
+            const isUser = allusers.find(user => user[0].username === data.message.substring(atSymbol+1, endOfName));
             targetuser = isUser != undefined ? isUser : {username: '?'};
         }
 
@@ -214,13 +216,11 @@ io.on('connection', async (socket) => {
                 return allusers[index];
             }
         });
-        if (targetUser==null || mutedusers.indexOf(targetUser[0])==-1) {
-            console.log("THE WRONG PATH", mutedusers)
+        if (targetUser==null || !mutedusers.find(item => item.name === targetUser.name)) {
             mutedusers.push(targetUser[0]);
             io.to(targetUser[1]).emit('set mute', true);
         } else {
-            console.log("OTHER PATH")
-            mutedusers.splice(mutedusers.indexOf(targetUser), 1);
+            mutedusers.splice(mutedusers.indexOf(targetUser[0]), 1);
             io.to(targetUser[1]).emit('set mute', false);
         }
     })
