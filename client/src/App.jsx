@@ -15,7 +15,6 @@ function App() {
     .then( res => res.json() )
     .then( res => {
       res.data ? setLoggedIn(true) : setLoggedIn(false)
-      console.log(loggedIn)
     })
     return () => {
 

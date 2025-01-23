@@ -11,7 +11,7 @@ import SideMenu from "../components/allchat/SideMenu";
 import AllUsersInRoom from "../Components/allchat/AllUsersInRoom";
 import InputLine from "../Components/allchat/InputLine";
 
-const socket = io('http://:8000', {
+const socket = io('http://:8000/allchat', {
     transports: ['websocket'],
     autoConnect: false, 
     withCredentials: true, 
