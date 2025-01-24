@@ -69,7 +69,7 @@ export function Settings() {
     return user? (
         <>
             <Container>
-                <Button size="lg" variant="link" onClick={()=>{window.location.href="/dashboard"}}>Back</Button>
+                <Button size="lg" variant="link" onClick={()=>{window.location.href="/allchat"}}>Back</Button>
                 <Form onSubmit={formHandle}>
                     <Form.Group controlId="user_pfp">
                         <Form.Label> Profile Picture </Form.Label>

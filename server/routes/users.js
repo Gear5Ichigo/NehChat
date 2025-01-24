@@ -41,7 +41,7 @@ router.post("/register", async (req, res) => {
         const u = await users.findOne( {_id: new_user.insertedId} )
         req.login(u, err => {
             if (err) { res.send(err) } else {
-                res.redirect('/dashboard');
+                res.redirect('/allchat');
             }
         })
     } else {

@@ -28,7 +28,6 @@
     padding-top: 5px;
     padding-bottom: 5px;
     height: 80%;
-	border: solid 3px white;
 }
 
 
@@ -62,4 +61,14 @@ body {
 .score{
 	text-align: center;
 	color:white;
+}
+
+.myBtn {
+    background-color: maroon;
+    padding:10px;
+    font-size: large;
+    font-weight: bold;
+    color: white;
+    border-radius: 10px;
+    border: 2px solid gray
 }
