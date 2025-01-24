@@ -19,7 +19,7 @@ class MenuButton extends Container {
     constructor({text}) {
         super({
             eventMode: "static",
-            pivot: 0.5,
+            pivot: (125, 40),
         });
 
         this.rect = new Graphics();

@@ -1,11 +1,20 @@
-import {Socket} from 'socket.io-client'
+import { io } from 'socket.io-client'
 import {Application, Assets, Container, Graphics, Sprite, Text} from 'pixi.js'
 import {Sound, sound} from '@pixi/sound'
 
 import smashingwindshieldsURL from '../assets/Smashing Windshields.wav';
-import guypng from '../assets/guy.png';
+import guypng from '../assets/guy3x.png';
 
 import { Controlls, MenuButton } from './easy';
+
+const socket = io('http://:8000', {
+    autoConnect: false,
+    withCredentials: true
+});
+
+socket.on("connect_error", (err) => {
+    console.log(err)
+});
 
 (async () => {
 
@@ -17,7 +26,7 @@ import { Controlls, MenuButton } from './easy';
         url: smashingwindshieldsURL,
         preload: true,
         loop: true,
-        volume: 0.2
+        volume: 0.1
     })
 
     await app.init({
@@ -36,9 +45,17 @@ import { Controlls, MenuButton } from './easy';
 
     const play_solo = new MenuButton({text: "Play Solo"});
     play_solo.x = app.screen.width/2;
-    play_solo.y = app.screen.height/2;
+    play_solo.y = app.screen.height/2-100;
     play_solo.on('pointerdown', (e) => {
         console.log("PLAY")
+    });
+
+    const play_multi = new MenuButton({text: "Play Multiplayer"});
+    play_multi.x = app.screen.width/2;
+    play_multi.y = app.screen.height/2;
+    play_multi.on('pointerdown', (e) => {
+        socket.connect();
+        socket.emit('midnight motorist');
     });
 
     const back_to = new MenuButton({text: "Exit"});
@@ -50,8 +67,8 @@ import { Controlls, MenuButton } from './easy';
 
     const player_texture = await Assets.load(guypng);
     const player = Sprite.from(player_texture)
-    player.scale.set(2.5, 2.5)
-    const speed = 8;
+    player.scale.set(2, 2)
+    const speed = 12;
 
     player.anchor.set(0.5)
     player.x = app.screen.width/2
@@ -59,6 +76,7 @@ import { Controlls, MenuButton } from './easy';
 
     app.stage.addChild(player);
     app.stage.addChild(play_solo);
+    app.stage.addChild(play_multi);
     app.stage.addChild(back_to);
 
     app.ticker.add(time => {

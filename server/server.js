@@ -117,6 +117,10 @@ io.on('connection', (socket) => {
 
     const req = socket.request
 
+    socket.on('midnight motorist', () => {
+        console.log("MIDNIGHT MOTORIST CONNECTED")
+    })
+
     console.log(req.session)
     if (req.user) {
         allusers.push(req.user);
