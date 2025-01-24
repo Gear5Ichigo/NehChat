@@ -30,6 +30,13 @@ import UiButton from '../../$repeatedJS/uibutton';
     const playbutton = new UiButton({
         text: "Play!"
     })
+    playbutton.on("pointerdown", e => {
+        console.log("playing")
+    })
+    //
+
+    //
+    app.stage.addChild(playbutton)
     //
 
     app.ticker.add(ticker => {
