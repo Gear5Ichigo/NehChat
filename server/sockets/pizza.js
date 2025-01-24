@@ -7,10 +7,15 @@ const { Server } = require("socket.io")
 module.exports = async (io, options) => {
 
     const namespace = io.of('/pizza');
+    
+    const rooms = []
 
     namespace.on("connection", socket => {
 
         console.log("someone joined pizza");
+
+        const req = socket.request;
+        const session = req.session;
 
         // Room stuff
         //=======================================
@@ -19,20 +24,27 @@ module.exports = async (io, options) => {
             console.log("Disconnected from Pizza")
         });
 
-        socket.on("create room", () => {
-
+        socket.on("create room", (roomCode) => {
+            if (socket.rooms.size < 1) {
+                rooms.push(roomCode);
+                socket.join(roomCode);
+            }
         });
 
-        socket.on("disband room", () => {
-
+        socket.on("disband room", (roomCode) => {
+            namespace.socketsLeave(roomCode)
         });
 
-        socket.on("join room", () => {
+        socket.on("join room", (roomCode) => {
 
         })
 
         socket.on("leave room", () => {
 
+        })
+
+        socket.on("start game", (roomCode) => {
+            namespace.to(roomCode).emit("start game");
         })
         
         //
